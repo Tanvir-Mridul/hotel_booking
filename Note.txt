@@ -1,0 +1,2 @@
+1. Search bar dynamic (DB based)
+2. Responsive navbar + login dropdown
