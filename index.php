@@ -92,33 +92,43 @@ $result = mysqli_query($conn, $sql);
 <div class="container mt-5">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Featured Hotels</h3>
-    <a href="hotel/hotel_list.php" class="btn btn-outline-primary">More</a>
+    <a href="hotel/hotel_list.php" class="btn btn-outline-primary">View All</a>
   </div>
 
   <div class="row">
+    <?php if(mysqli_num_rows($result) > 0): ?>
+      <?php while($row = mysqli_fetch_assoc($result)): ?>
+      <div class="col-md-3 mb-4">
+        <div class="card hotel-card h-100 shadow-sm">
+          <img src="uploads/<?php echo $row['image']; ?>" 
+               class="card-img-top" 
+               style="height:200px;object-fit:cover;"
+               onerror="this.src='assets/img/default.jpg'">
+          
+          <div class="card-body">
+            <h6><?php echo $row['hotel_name']; ?></h6>
+            <p class="text-muted mb-1">
+              <i class="fas fa-map-marker-alt"></i> <?php echo $row['location']; ?>
+            </p>
+            <strong class="text-success">৳ <?php echo $row['price']; ?> / night</strong>
+          </div>
 
-    <?php while($row = mysqli_fetch_assoc($result)): ?>
-
-    <div class="col-md-3 mb-4">
-      <div class="card hotel-card h-100 shadow-sm">
-        <img src="assets/img/<?php echo $row['image']; ?>" class="card-img-top" style="height:200px;object-fit:cover;">
-
-        <div class="card-body">
-          <h6><?php echo $row['hotel_name']; ?></h6>
-          <p class="text-muted mb-1"><?php echo $row['location']; ?></p>
-          <strong class="text-success">৳ <?php echo $row['price']; ?></strong>
-        </div>
-
-        <div class="card-footer bg-white border-0">
-          <a href="hotel/hotel_details.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-primary w-100">
-            View Details
-          </a>
+          <div class="card-footer bg-white border-0">
+            <a href="hotel/hotel_details.php?id=<?php echo $row['id']; ?>" 
+               class="btn btn-sm btn-primary w-100">
+              View Details
+            </a>
+          </div>
         </div>
       </div>
-    </div>
-
-    <?php endwhile; ?>
-
+      <?php endwhile; ?>
+    <?php else: ?>
+      <div class="col-12">
+        <div class="alert alert-info">
+          No hotels available at the moment.
+        </div>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
 <!-- ================= Choose Us ================= -->

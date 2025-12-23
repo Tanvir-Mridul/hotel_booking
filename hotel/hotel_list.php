@@ -1,3 +1,5 @@
+
+
 <?php
 include "../db_connect.php";
 include "../header.php";
@@ -70,7 +72,7 @@ $result = mysqli_query($conn, $sql);
                 <div class="col-md-4 mb-4">
                     <div class="card shadow-sm h-100">
 
-                        <img src="../assets/img/<?php echo $row['image']; ?>"
+                        <img src="../uploads/<?php echo $row['image']; ?>"
                              class="card-img-top"
                              style="height:220px; object-fit:cover;">
 
