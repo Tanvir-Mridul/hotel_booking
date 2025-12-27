@@ -32,10 +32,15 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <title>My Profile</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Your Custom CSS -->
+    <link rel="stylesheet" href="../style.css">
+    <!-- Include Header for Navbar -->
+    <?php include "../header.php"; ?>    
     <style>
         body { display: flex; margin: 0; background: #f5f5f5; }
-        .main { margin-left: 220px; padding: 20px; width: 100%; }
+        .main {  padding: 20px; width: 100%; }
         
         .profile-card {
             background: white;
@@ -67,9 +72,11 @@ if($_SERVER['REQUEST_METHOD'] == 'POST') {
 </head>
 <body>
 
-<?php include "sidebar.php"; ?>
+
 
 <div class="main">
+    <br>
+    <br>
     <div class="profile-card">
         <div class="profile-header">
             <div class="profile-icon">

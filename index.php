@@ -1,11 +1,26 @@
 <?php
+session_start();
 include "db_connect.php";
-include "header.php";
 
 /* Show some approved hotels */
 $sql = "SELECT * FROM hotels WHERE status='approved' ORDER BY id DESC LIMIT 4";
 $result = mysqli_query($conn, $sql);
 ?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Booking - Find Best Hotels in Bangladesh</title>
+    
+    <!-- Include Header (with Bootstrap 4 navbar) -->
+    <?php include "header.php"; ?>
+    
+    <!-- Your Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
 
 <div class="hero-section">
@@ -241,7 +256,7 @@ $result = mysqli_query($conn, $sql);
       List your hotel on our platform and reach thousands of travelers
       across Bangladesh.
     </p>
-    <a href="owner/add_hotel.php" class="owner-cta-btn">
+    <a href="login.php" class="owner-cta-btn">
       List Your Hotel
     </a>
   </div>
@@ -295,4 +310,5 @@ $result = mysqli_query($conn, $sql);
 
 
 <?php include "footer.php"; ?>
-
+</body>
+</html>

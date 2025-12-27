@@ -9,105 +9,119 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'user') {
 
 $user_id = $_SESSION['user_id'];
 
-// Get user's bookings
-$sql = "SELECT * FROM bookings WHERE user_id='$user_id' ORDER BY id DESC";
+// Handle cancellation
+if(isset($_GET['cancel_id'])) {
+    $cancel_id = $_GET['cancel_id'];
+    $cancel_sql = "UPDATE bookings SET status='cancelled' WHERE id='$cancel_id' AND user_id='$user_id'";
+    mysqli_query($conn, $cancel_sql);
+    header("Location: my_booking.php?msg=cancelled");
+    exit();
+}
+
+// Get bookings - Simple query
+$sql = "SELECT b.*, h.rooms, h.capacity, h.description 
+        FROM bookings b
+        LEFT JOIN hotels h ON b.hotel_name = h.hotel_name 
+        WHERE b.user_id='$user_id' 
+        ORDER BY b.id DESC";
 $result = mysqli_query($conn, $sql);
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>My Bookings</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <?php include "../header.php"; ?>
+    
     <style>
-        body { display: flex; margin: 0; background: #f5f5f5; }
-        .main { margin-left: 220px; padding: 20px; width: 100%; }
-        
-        .booking-card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
-            border-left: 5px solid #3498db;
-        }
-        
-        .status-badge {
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .confirmed { background: #d4edda; color: #155724; }
-        .pending { background: #fff3cd; color: #856404; }
-        .cancelled { background: #f8d7da; color: #721c24; }
-        
-        .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            background: white;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-        
-        .empty-icon {
-            font-size: 60px;
-            color: #ddd;
-            margin-bottom: 20px;
-        }
+        body { background: #f5f5f5; padding: 20px; }
+        .booking-card { background: white; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
+        .badge { padding: 5px 10px; border-radius: 15px; }
     </style>
 </head>
 <body>
 
-<?php include "sidebar.php"; ?>
-
-<div class="main">
-    <h3>My Bookings</h3>
+<div class="container">
+    <h3 class="mb-4">My Bookings</h3>
+    
+    <?php if(isset($_GET['msg']) && $_GET['msg'] == 'cancelled'): ?>
+        <div class="alert alert-success alert-dismissible fade show">
+            Booking cancelled successfully!
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    <?php endif; ?>
     
     <?php if(mysqli_num_rows($result) > 0): ?>
-        <?php while($row = mysqli_fetch_assoc($result)): ?>
+        <?php while($booking = mysqli_fetch_assoc($result)): ?>
         <div class="booking-card">
-            <div style="display: flex; justify-content: space-between; align-items: start;">
-                <div>
-                    <h5 style="margin-bottom: 5px;"><?php echo $row['hotel_name']; ?></h5>
-                    <p style="color: #666; margin-bottom: 5px;">
-                        <i class="fas fa-map-marker-alt"></i> <?php echo $row['location']; ?>
+            <div class="row">
+                <div class="col-md-8">
+                    <h5><?php echo $booking['hotel_name']; ?></h5>
+                    <p class="text-muted mb-2">
+                        <i class="fas fa-map-marker-alt"></i> <?php echo $booking['location']; ?>
                     </p>
-                    <p style="color: #666; margin-bottom: 5px;">
-                        <i class="fas fa-calendar"></i> <?php echo $row['booking_date']; ?>
+                    <p class="mb-1">
+                        <i class="fas fa-calendar"></i> <?php echo $booking['booking_date']; ?>
                     </p>
-                    <p style="font-size: 18px; font-weight: bold; color: #27ae60;">
-                        ৳ <?php echo $row['price']; ?>
+                    <p class="mb-1">
+                        <i class="fas fa-bed"></i> <?php echo $booking['rooms'] ?? '1'; ?> Rooms
+                        | <i class="fas fa-users"></i> Max <?php echo $booking['capacity'] ?? '2'; ?> Guests
                     </p>
+                    <h5 class="text-success mt-2">৳ <?php echo $booking['price']; ?></h5>
                 </div>
                 
-                <div style="text-align: right;">
-                    <span class="status-badge <?php echo $row['status']; ?>">
-                        <?php echo ucfirst($row['status']); ?>
+                <div class="col-md-4 text-right">
+                    <?php 
+                    $badge_class = 'badge-warning';
+                    if($booking['status'] == 'confirmed') $badge_class = 'badge-success';
+                    if($booking['status'] == 'cancelled') $badge_class = 'badge-danger';
+                    ?>
+                    <span class="badge <?php echo $badge_class; ?> mb-2">
+                        <?php echo ucfirst($booking['status']); ?>
                     </span>
+                    
                     <br>
-                    <small style="color: #999; margin-top: 5px; display: block;">
-                        Booking ID: #<?php echo $row['id']; ?>
-                    </small>
+                    <small class="text-muted">ID: #<?php echo $booking['id']; ?></small>
+                    
+                    <div class="mt-3">
+                        <button type="button" class="btn btn-info btn-sm mb-1" onclick="showDetails(<?php echo $booking['id']; ?>)">
+                            <i class="fas fa-eye"></i> Details
+                        </button>
+                        
+                        <?php if($booking['status'] != 'cancelled'): ?>
+                            <a href="?cancel_id=<?php echo $booking['id']; ?>" 
+                               class="btn btn-danger btn-sm"
+                               onclick="return confirm('Cancel this booking?')">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </div>
             </div>
         </div>
         <?php endwhile; ?>
     <?php else: ?>
-        <div class="empty-state">
-            <div class="empty-icon">📅</div>
-            <h4>No Bookings Yet</h4>
-            <p style="color: #666; max-width: 400px; margin: 10px auto 20px;">
-                You haven't made any bookings yet. Start exploring hotels and book your stay.
-            </p>
+        <div class="text-center py-5">
+            <div class="display-1 text-muted mb-3">📅</div>
+            <h4>No bookings found</h4>
+            <p class="text-muted mb-4">You haven't made any bookings yet.</p>
             <a href="../hotel/hotel_list.php" class="btn btn-primary">
                 <i class="fas fa-hotel"></i> Browse Hotels
             </a>
         </div>
     <?php endif; ?>
 </div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+function showDetails(bookingId) {
+    alert('Booking ID: ' + bookingId + '\nView details functionality would be implemented here.');
+}
+</script>
 
 </body>
 </html>

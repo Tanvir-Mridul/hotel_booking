@@ -26,3 +26,24 @@ if(mysqli_query($conn, $sql)) {
     echo "Booking error: " . mysqli_error($conn);
 }
 ?>
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Bootstrap 4 CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Your Custom CSS -->
+    <link rel="stylesheet" href="../style.css">
+    <!-- Include Header for Navbar -->
+    <?php include "../header.php"; ?>
+    
+    <title>Your Page Title</title>
+</head>
+<body>
+<!-- Your page content -->
+</body>
+</html>

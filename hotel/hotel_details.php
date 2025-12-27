@@ -24,13 +24,13 @@ if (mysqli_num_rows($result) == 0) {
 
 $hotel = mysqli_fetch_assoc($result);
 ?>
-
+<link rel="stylesheet" href="../style.css">
 <div class="container mt-5">
     <div class="row">
 
         <!-- Hotel Image -->
         <div class="col-md-6">
-            <img src="../assets/img/<?php echo $hotel['image']; ?>" class="img-fluid rounded">
+            <img src="../uploads/<?php echo $hotel['image']; ?>" class="img-fluid rounded">
         </div>
 
         <!-- Hotel Info -->
@@ -71,6 +71,10 @@ $hotel = mysqli_fetch_assoc($result);
         </div>
 
     </div>
+    <br>
+    <br>
+    <br>
+    <br>
 </div>
 
 <?php include "../footer.php"; ?>

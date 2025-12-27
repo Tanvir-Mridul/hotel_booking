@@ -34,7 +34,7 @@ if (mysqli_num_rows($res) == 1) {
         if ($user['role'] == 'owner') {
             header("Location: owner/dashboard.php");
         } else {
-            header("Location: user/dashboard.php");
+            header("Location: index.php");
         }
         exit();
     } else {
