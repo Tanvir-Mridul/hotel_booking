@@ -165,7 +165,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
 <?php endif; ?>
                   <!-- Notification Bell -->
 <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
         🔔
         <?php if (count($notifications) > 0): ?>
             <span class="badge bg-danger"><?php echo count($notifications); ?></span>

@@ -2,46 +2,81 @@
 session_start();
 include "../db_connect.php";
 
-$user_id  = $_SESSION['user_id'];
-$hotel_id = $_POST['hotel_id'];   // hidden input থেকে আসবে
-
-// 1️⃣ hotel থেকে owner_id বের করো
-$hotelQuery = mysqli_query(
-    $conn,
-    "SELECT owner_id, hotel_name, location, price 
-     FROM hotels 
-     WHERE id='$hotel_id'"
-);
-
-$hotel = mysqli_fetch_assoc($hotelQuery);
-
-if (!$hotel) {
-    die("Hotel not found");
+// User login check
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'user') {
+    header("Location: ../login.php");
+    exit();
 }
 
-$owner_id   = $hotel['owner_id'];
+$user_id  = $_SESSION['user_id'];
+
+if (!isset($_POST['hotel_id'])) {
+    header("Location: hotel_list.php");
+    exit();
+}
+
+$hotel_id = intval($_POST['hotel_id']);
+
+/* ===============================
+   Get hotel info
+================================ */
+$hotel_q = $conn->prepare("
+    SELECT id, hotel_name, location, price, owner_id 
+    FROM hotels 
+    WHERE id = ? AND status = 'approved'
+");
+$hotel_q->bind_param("i", $hotel_id);
+$hotel_q->execute();
+$hotel = $hotel_q->get_result()->fetch_assoc();
+
+if (!$hotel) {
+    die("Invalid hotel!");
+}
+
 $hotel_name = $hotel['hotel_name'];
 $location   = $hotel['location'];
 $price      = $hotel['price'];
+$owner_id   = $hotel['owner_id'];
 
-// 2️⃣ booking insert করো
-$sql = "INSERT INTO bookings
-(user_id, hotel_id, owner_id, hotel_name, location, price, booking_date, status)
-VALUES
-('$user_id', '$hotel_id', '$owner_id', '$hotel_name', '$location', '$price', NOW(), 'pending')";
-mysqli_query($conn,"INSERT INTO notifications (receiver_id, receiver_role, message, link)
-VALUES (
-    '$owner_id','owner',
-    'A user booked your hotel',
-    'owner/manage_bookings.php'
-)
+/* ===============================
+   Insert booking (SAFE)
+================================ */
+$insert = $conn->prepare("
+    INSERT INTO bookings 
+    (user_id, owner_id, hotel_id, hotel_name, location, price, booking_date, status)
+    VALUES (?, ?, ?, ?, ?, ?, NOW(), 'pending')
 ");
 
+$insert->bind_param(
+    "iiissd",
+    $user_id,
+    $owner_id,
+    $hotel_id,
+    $hotel_name,
+    $location,
+    $price
+);
 
-if (!mysqli_query($conn, $sql)) {
-    die("Booking failed: " . mysqli_error($conn));
-}
+$insert->execute();
+$booking_id = $insert->insert_id;
 
-// 3️⃣ success
+/* ===============================
+   Owner notification
+================================ */
+$noti = $conn->prepare("
+    INSERT INTO notifications 
+    (receiver_id, receiver_role, message, link, created_at)
+    VALUES (?, 'owner', ?, ?, NOW())
+");
+
+$message = "📢 New booking request for \"$hotel_name\"";
+$link    = "/hotel_booking/owner/manage_bookings.php";
+
+$noti->bind_param("iss", $owner_id, $message, $link);
+$noti->execute();
+
+/* ===============================
+   Redirect user
+================================ */
 header("Location: ../user/my_booking.php?success=1");
-exit;
+exit();
