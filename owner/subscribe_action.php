@@ -3,23 +3,31 @@ session_start();
 include "../db_connect.php";
 
 $owner_id = $_SESSION['user_id'];
-$package_id = $_GET['id'];
+$sub_id = $_GET['id'];
 
-// Check again to prevent multiple subscriptions
-$check_sql = "SELECT * FROM owner_subscriptions 
-              WHERE owner_id='$owner_id' 
-              AND status IN ('pending','approved')";
-$check_result = mysqli_query($conn, $check_sql);
+// check already active subscription
+$check = mysqli_query($conn,"
+SELECT * FROM owner_subscriptions 
+WHERE owner_id=$owner_id AND status='approved'
+");
 
-if(mysqli_num_rows($check_result) > 0){
-    echo "<script>alert('You already have an active subscription!'); window.location='subscription.php';</script>";
-    exit();
+if(mysqli_num_rows($check) > 0){
+    die("You already have an active subscription");
 }
 
-// Insert new subscription request
-$today = date("Y-m-d");
-$sql = "INSERT INTO owner_subscriptions (owner_id, subscription_id, start_date, end_date, status)
-        VALUES ('$owner_id', '$package_id', '$today', '$today', 'pending')";
-mysqli_query($conn, $sql);
+// get package
+$sub = mysqli_fetch_assoc(mysqli_query($conn,
+"SELECT * FROM subscriptions WHERE id=$sub_id"
+));
 
-echo "<script>alert('Subscription request sent. Wait for admin approval.'); window.location='subscription.php';</script>";
+// create owner_subscription
+mysqli_query($conn,"
+INSERT INTO owner_subscriptions(owner_id, subscription_id, status)
+VALUES($owner_id,$sub_id,'pending')
+");
+
+$owner_sub_id = mysqli_insert_id($conn);
+
+// redirect to payment
+header("Location: ../ssl/subscription_payment.php?osid=$owner_sub_id");
+exit;

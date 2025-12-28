@@ -120,13 +120,10 @@ $packages = mysqli_query($conn,"SELECT * FROM subscriptions");
                             <i class="fas fa-ban"></i> Already Subscribed
                         </button>
                     <?php else: ?>
-                        <button 
-                            class="btn btn-primary subscribe-btn"
-                            data-toggle="modal"
-                            data-target="#subscribeModal"
-                            data-id="<?= $p['id'] ?>">
-                            <i class="fas fa-check-circle"></i> Subscribe Now
-                        </button>
+                        <a href="/hotel_booking/ssl/subscription_payment.php?package_id=<?= $p['id'] ?>"
+   class="btn btn-primary subscribe-btn">
+   <i class="fas fa-credit-card"></i> Subscribe
+</a>
                     <?php endif; ?>
                 </div>
             </div>
@@ -179,9 +176,11 @@ $('#subscribeModal').on('show.bs.modal', function (event) {
 });
 
 document.getElementById("confirmSubscribe").onclick = function () {
-    window.location.href = "subscribe_action.php?id=" + selectedPackage;
+    window.location.href =
+        "/hotel_booking/ssl/subscription_payment.php?package_id=" + selectedPackage;
 };
 </script>
+
 
 </body>
 </html>
