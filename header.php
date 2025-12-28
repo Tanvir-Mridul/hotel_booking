@@ -76,11 +76,14 @@
                                     <i class="fas fa-user mr-2"></i> Profile
                                 </a>
                             <?php elseif($_SESSION['role'] == 'owner'): ?>
-                                <a class="dropdown-item" href="owner/dashboard.php">
+                                <a class="dropdown-item" href="/hotel_booking/owner/dashboard.php">
                                     <i class="fas fa-tachometer-alt mr-2"></i> Owner Panel
                                 </a>
-                                <a class="dropdown-item" href="owner/upload_flat.php">
+                                <a class="dropdown-item" href="/hotel_booking/owner/upload_flat.php">
                                     <i class="fas fa-plus-circle mr-2"></i> Upload Flat
+                                </a>
+                                <a class="dropdown-item" href="/hotel_booking/owner/manage_bookings.php">
+                                    <i class="fas fa-plus-circle mr-2"></i> Manage Booking
                                 </a>
                             <?php elseif($_SESSION['role'] == 'admin'): ?>
                                 <a class="dropdown-item" href="admin/dashboard.php">
@@ -94,7 +97,7 @@
                             <div class="dropdown-divider"></div>
                             
                             <!-- Logout -->
-                            <a class="dropdown-item text-danger" href="logout.php">
+                            <a class="dropdown-item text-danger" href="/hotel_booking/logout.php">
                                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
                             </a>
                         </div>

@@ -8,10 +8,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 
 // Get all bookings with user info
-$sql = "SELECT bookings.*, users.name as user_name, users.email 
-        FROM bookings 
-        JOIN users ON bookings.user_id = users.id
-        ORDER BY bookings.id DESC";
+$sql = "SELECT b.*, 
+       u.name AS user_name, 
+       o.name AS owner_name
+FROM bookings b
+JOIN users u ON b.user_id = u.id
+JOIN users o ON b.owner_id = o.id
+ORDER BY b.id DESC";
 $result = mysqli_query($conn, $sql);
 ?>
 

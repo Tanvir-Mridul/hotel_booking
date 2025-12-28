@@ -1,31 +1,26 @@
 <?php
 session_start();
-include "../db_connect.php";
+$hotel_id = $_GET['hotel_id'];
+$user_id  = $_SESSION['user_id'];
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'user') {
-    header("Location: ../login.php");
-    exit();
-}
+// hotel থেকে owner বের করো
+$hotelQuery = mysqli_query($conn, "SELECT owner_id, price FROM hotels WHERE id='$hotel_id'");
+$hotel = mysqli_fetch_assoc($hotelQuery);
 
-$user_id = $_SESSION['user_id'];
+$owner_id = $hotel['owner_id'];
+$price    = $hotel['price'];
 
-// Get booking data
-$hotel_id = $_POST['hotel_id'];
-$hotel_name = $_POST['hotel_name'];
-$location = $_POST['location'];
-$price = $_POST['price'];
-$booking_date = $_POST['booking_date'];
+$sql = "INSERT INTO bookings 
+        (user_id, hotel_id, owner_id, price, booking_date, status)
+        VALUES 
+        ('$user_id', '$hotel_id', '$owner_id', '$price', NOW(), 'pending')";
 
-// Insert booking
-$sql = "INSERT INTO bookings (user_id, hotel_name, location, price, booking_date, status) 
-        VALUES ('$user_id', '$hotel_name', '$location', '$price', '$booking_date', 'pending')";
+mysqli_query($conn, $sql);
 
-if(mysqli_query($conn, $sql)) {
-    header("Location: ../user/my_booking.php?msg=booked");
-} else {
-    echo "Booking error: " . mysqli_error($conn);
-}
+header("Location: my_booking.php");
 ?>
+
+
 
 
 

@@ -1,10 +1,7 @@
-
-
 <?php
 session_start();
 include "../db_connect.php";
 include "../header.php";
-
 
 /* ====== Search Values ====== */
 $location = "";
@@ -13,27 +10,29 @@ $max_price = "";
 
 $where = "WHERE status='approved'";
 
-if (isset($_GET['search'])) {
+/* 🔍 LOCATION SEARCH */
+if (!empty($_GET['location'])) {
+    $location = mysqli_real_escape_string($conn, $_GET['location']);
+    $where .= " AND (location LIKE '%$location%' 
+                OR hotel_name LIKE '%$location%')";
+}
 
-    if (!empty($_GET['location'])) {
-        $location = mysqli_real_escape_string($conn, $_GET['location']);
-        $where .= " AND location LIKE '%$location%'";
-    }
+/* 💰 MIN PRICE */
+if (!empty($_GET['min_price'])) {
+    $min_price = (int)$_GET['min_price'];
+    $where .= " AND price >= $min_price";
+}
 
-    if (!empty($_GET['min_price'])) {
-        $min_price = (int)$_GET['min_price'];
-        $where .= " AND price >= $min_price";
-    }
-
-    if (!empty($_GET['max_price'])) {
-        $max_price = (int)$_GET['max_price'];
-        $where .= " AND price <= $max_price";
-    }
+/* 💰 MAX PRICE */
+if (!empty($_GET['max_price'])) {
+    $max_price = (int)$_GET['max_price'];
+    $where .= " AND price <= $max_price";
 }
 
 $sql = "SELECT * FROM hotels $where ORDER BY id DESC";
 $result = mysqli_query($conn, $sql);
 ?>
+
 
 <link rel="stylesheet" href="../style.css">
 <div class="container mt-5">
