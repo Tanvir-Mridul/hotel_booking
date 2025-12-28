@@ -2,23 +2,46 @@
 session_start();
 include "../db_connect.php";
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'user') {
-    header("Location: ../login.php");
-    exit();
+$user_id  = $_SESSION['user_id'];
+$hotel_id = $_POST['hotel_id'];   // hidden input থেকে আসবে
+
+// 1️⃣ hotel থেকে owner_id বের করো
+$hotelQuery = mysqli_query(
+    $conn,
+    "SELECT owner_id, hotel_name, location, price 
+     FROM hotels 
+     WHERE id='$hotel_id'"
+);
+
+$hotel = mysqli_fetch_assoc($hotelQuery);
+
+if (!$hotel) {
+    die("Hotel not found");
 }
 
-$user_id = $_SESSION['user_id'];
+$owner_id   = $hotel['owner_id'];
+$hotel_name = $hotel['hotel_name'];
+$location   = $hotel['location'];
+$price      = $hotel['price'];
 
-// 🔐 Escape all string inputs
-$hotel_name   = mysqli_real_escape_string($conn, $_POST['hotel_name']);
-$location     = mysqli_real_escape_string($conn, $_POST['location']);
-$price        = $_POST['price'];
-$booking_date = $_POST['booking_date'];
+// 2️⃣ booking insert করো
+$sql = "INSERT INTO bookings
+(user_id, hotel_id, owner_id, hotel_name, location, price, booking_date, status)
+VALUES
+('$user_id', '$hotel_id', '$owner_id', '$hotel_name', '$location', '$price', NOW(), 'pending')";
+mysqli_query($conn,"INSERT INTO notifications (receiver_id, receiver_role, message, link)
+VALUES (
+    '$owner_id','owner',
+    'A user booked your hotel',
+    'owner/manage_bookings.php'
+)
+");
 
-$sql = "INSERT INTO bookings (user_id, hotel_name, location, price, booking_date)
-        VALUES ('$user_id', '$hotel_name', '$location', '$price', '$booking_date')";
 
-mysqli_query($conn, $sql);
+if (!mysqli_query($conn, $sql)) {
+    die("Booking failed: " . mysqli_error($conn));
+}
 
-header("Location: ../user/my_booking.php");
-exit();
+// 3️⃣ success
+header("Location: ../user/my_booking.php?success=1");
+exit;

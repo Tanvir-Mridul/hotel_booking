@@ -1,7 +1,57 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+include_once "db_connect.php";
+
+// Check owner subscription
+$show_premium = false;
+
+if (isset($_SESSION['user_id']) && $_SESSION['role'] == 'owner') {
+    $owner_id = $_SESSION['user_id'];
+
+    $sub_result = mysqli_query($conn, "SELECT status
+        FROM owner_subscriptions
+        WHERE owner_id = '$owner_id'
+        ORDER BY id DESC
+        LIMIT 1
+    ");
+    $subscription = mysqli_fetch_assoc($sub_result);
+
+    if ($subscription && $subscription['status'] == 'approved') {
+        $show_premium = true;
+    }
+}
+
+$notifications = [];
+
+if (isset($_SESSION['user_id'], $_SESSION['role'])) {
+    $uid = $_SESSION['user_id'];
+    $role = $_SESSION['role'];
+
+    $noti_q = mysqli_query($conn, "
+        SELECT * FROM notifications
+        WHERE receiver_id='$uid' 
+        AND receiver_role='$role'
+        ORDER BY id DESC
+        LIMIT 5
+    ");
+
+    while ($row = mysqli_fetch_assoc($noti_q)) {
+        $notifications[] = $row;
+    }
+}
+?>
+
+
+
+
 <!-- Bootstrap 4 CSS -->
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
     <div class="container">
@@ -43,11 +93,11 @@
 
             <!-- Right Menu Items -->
             <ul class="navbar-nav ml-auto">
-                <?php if(isset($_SESSION['user_id'])): ?>
+                <?php if (isset($_SESSION['user_id'])): ?>
                     <!-- User is Logged In -->
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" 
-                           role="button" data-toggle="dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown"
+                            role="button" data-toggle="dropdown">
                             <div class="mr-2" style="width: 30px; height: 30px; background: #3498db; 
                                   border-radius: 50%; display: flex; align-items: center; justify-content: center; 
                                   color: white; font-weight: bold;">
@@ -55,7 +105,7 @@
                             </div>
                             <span><?php echo htmlspecialchars($_SESSION['name']); ?></span>
                         </a>
-                        
+
                         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userDropdown">
                             <!-- User Info -->
                             <div class="dropdown-header">
@@ -63,9 +113,9 @@
                                 <div class="small text-muted"><?php echo $_SESSION['role']; ?></div>
                             </div>
                             <div class="dropdown-divider"></div>
-                            
+
                             <!-- User Links -->
-                            <?php if($_SESSION['role'] == 'user'): ?>
+                            <?php if ($_SESSION['role'] == 'user'): ?>
                                 <a class="dropdown-item" href="/hotel_booking/user/dashboard.php">
                                     <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
                                 </a>
@@ -75,7 +125,7 @@
                                 <a class="dropdown-item" href="/hotel_booking/user/profile.php">
                                     <i class="fas fa-user mr-2"></i> Profile
                                 </a>
-                            <?php elseif($_SESSION['role'] == 'owner'): ?>
+                            <?php elseif ($_SESSION['role'] == 'owner'): ?>
                                 <a class="dropdown-item" href="/hotel_booking/owner/dashboard.php">
                                     <i class="fas fa-tachometer-alt mr-2"></i> Owner Panel
                                 </a>
@@ -85,7 +135,10 @@
                                 <a class="dropdown-item" href="/hotel_booking/owner/manage_bookings.php">
                                     <i class="fas fa-plus-circle mr-2"></i> Manage Booking
                                 </a>
-                            <?php elseif($_SESSION['role'] == 'admin'): ?>
+                                 <a class="dropdown-item" href="/hotel_booking/owner/subscription.php">
+                                    <i class="fas fa-plus-circle mr-2"></i> Subscription
+                                </a>
+                            <?php elseif ($_SESSION['role'] == 'admin'): ?>
                                 <a class="dropdown-item" href="admin/dashboard.php">
                                     <i class="fas fa-cog mr-2"></i> Admin Panel
                                 </a>
@@ -93,32 +146,53 @@
                                     <i class="fas fa-hotel mr-2"></i> Manage Hotels
                                 </a>
                             <?php endif; ?>
-                            
+
                             <div class="dropdown-divider"></div>
-                            
+
                             <!-- Logout -->
                             <a class="dropdown-item text-danger" href="/hotel_booking/logout.php">
                                 <i class="fas fa-sign-out-alt mr-2"></i> Logout
                             </a>
                         </div>
                     </li>
-                    
-                    <!-- Notification Bell -->
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="user/my_booking.php">
-                            <i class="fas fa-bell"></i>
-                            <?php
-                            // Count unread notifications
-                            $notification_count = 0;
-                            if($notification_count > 0): ?>
-                            <span class="badge badge-danger badge-pill position-absolute" 
-                                  style="top: 0; right: 0; font-size: 0.6em;">
-                                <?php echo $notification_count; ?>
-                            </span>
-                            <?php endif; ?>
-                        </a>
-                    </li>
-                    
+
+                  <?php if($show_premium): ?>
+    <li class="nav-item mr-3">
+        <span class="badge badge-warning" style="font-size: 14px; padding: 8px 12px;">
+            🌟 Premium
+        </span>
+    </li>
+<?php endif; ?>
+                  <!-- Notification Bell -->
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+        🔔
+        <?php if (count($notifications) > 0): ?>
+            <span class="badge bg-danger"><?php echo count($notifications); ?></span>
+        <?php endif; ?>
+    </a>
+
+    <ul class="dropdown-menu dropdown-menu-end" style="width:300px;">
+        <?php if (count($notifications) > 0): ?>
+            <?php foreach ($notifications as $n): ?>
+                <li>
+                    <a href="<?php echo $n['link'] ?? '#'; ?>" class="dropdown-item">
+                        <?php echo $n['message']; ?><br>
+                        <small class="text-muted">
+                            <?php echo date("d M, h:i A", strtotime($n['created_at'])); ?>
+                        </small>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <li class="dropdown-item text-muted">No notifications</li>
+        <?php endif; ?>
+    </ul>
+</li>
+
+
+
                 <?php else: ?>
                     <!-- User is NOT Logged In -->
                     <li class="nav-item">
@@ -146,16 +220,16 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 <script>
-// Navbar active state
-$(document).ready(function() {
-    var currentPage = window.location.pathname.split('/').pop();
-    $('.nav-link').each(function() {
-        var linkPage = $(this).attr('href');
-        if(linkPage === currentPage) {
-            $(this).addClass('active');
-        } else {
-            $(this).removeClass('active');
-        }
+    // Navbar active state
+    $(document).ready(function () {
+        var currentPage = window.location.pathname.split('/').pop();
+        $('.nav-link').each(function () {
+            var linkPage = $(this).attr('href');
+            if (linkPage === currentPage) {
+                $(this).addClass('active');
+            } else {
+                $(this).removeClass('active');
+            }
+        });
     });
-});
 </script>

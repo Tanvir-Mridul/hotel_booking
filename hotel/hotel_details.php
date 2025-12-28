@@ -12,6 +12,7 @@ if (!isset($_GET['id'])) {
 
 $hotel_id = $_GET['id'];
 
+
 // 2️⃣ DB থেকে hotel data আনা
 $sql = "SELECT * FROM hotels WHERE id='$hotel_id' AND status='approved'";
 $result = mysqli_query($conn, $sql);

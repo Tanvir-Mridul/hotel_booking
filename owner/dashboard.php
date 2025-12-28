@@ -2,6 +2,8 @@
 session_start();
 include "../db_connect.php";
 
+     include "../header.php"; 
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'owner') {
     header("Location: ../login.php");
     exit();
@@ -31,15 +33,15 @@ $result = mysqli_query($conn, $sql);
 <html>
 <head>
     <title>Owner Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  
      <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Bootstrap 4 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Your Custom CSS -->
     <link rel="stylesheet" href="../style.css">
-    <!-- Include Header for Navbar -->
-    <?php include "../header.php"; ?>
+    
+    
     <style>
         body { display: flex; margin: 0; background: #f5f5f5; }
         .main { margin-top: 60px; padding: 20px; width: 100%; }
@@ -89,7 +91,8 @@ $result = mysqli_query($conn, $sql);
 </head>
 <body>
 
-
+<!-- Include Header for Navbar -->
+    <?php include "../header.php"; ?>
 
 <!-- Main Content -->
 <div class="main">
@@ -158,3 +161,6 @@ $result = mysqli_query($conn, $sql);
 
 </body>
 </html>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

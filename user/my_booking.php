@@ -25,8 +25,7 @@ if (isset($_GET['cancel_id'])) {
 }
 
 /* ✅ Booking List (PROPER JOIN) */
-$sql = "
-SELECT 
+$sql = "SELECT 
     b.*, 
     h.location, 
     h.rooms, 

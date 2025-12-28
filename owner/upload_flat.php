@@ -2,10 +2,35 @@
 session_start();
 include "../db_connect.php";
 
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'owner') {
     header("Location: ../login.php");
     exit();
 }
+$owner_id = $_SESSION['user_id'];
+
+
+$check = mysqli_query($conn,
+    "SELECT * FROM owner_subscriptions 
+     WHERE owner_id='$owner_id' AND status='approved' 
+     AND end_date >= CURDATE()"
+);
+
+if(mysqli_num_rows($check)==0){
+    die("<div style='padding:20px;color:red;font-weight:bold'>
+         Please subscribe & wait for admin approval
+         </div>");
+}
+
+
+if(mysqli_num_rows($check)==0){
+echo "<div class='alert alert-danger'>
+    You must have an active subscription to upload flats.
+    </div>";
+    exit;
+}
+
+
 ?>
 
 <!DOCTYPE html>
