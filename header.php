@@ -196,12 +196,12 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                 <?php else: ?>
                     <!-- User is NOT Logged In -->
                     <li class="nav-item">
-                        <a class="nav-link" href="login.php">
+                        <a class="nav-link" href="/hotel_booking/login.php">
                             <i class="fas fa-sign-in-alt mr-1"></i> Login
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary ml-2" href="register.php">
+                        <a class="btn btn-primary ml-2" href="/hotel_booking/register.php">
                             <i class="fas fa-user-plus mr-1"></i> Sign Up
                         </a>
                     </li>

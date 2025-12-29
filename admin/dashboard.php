@@ -16,6 +16,13 @@ $pending_hotels = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as pen
 $total_users = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM users"))['total'];
 $total_subscriptions = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM owner_subscriptions"))['total']; // <-- এইটা নতুন
 
+// Total subscription revenue
+$total_subscription_revenue = mysqli_fetch_assoc(mysqli_query($conn, "SELECT SUM(s.price) as total 
+    FROM owner_subscriptions os
+    JOIN subscriptions s ON os.package_id = s.id
+    WHERE os.status='approved'
+"))['total'];
+
 ?>
 
 <!DOCTYPE html>
@@ -158,7 +165,10 @@ $total_subscriptions = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) a
                 <div class="stat-number"><?php echo $total_subscriptions; ?></div>
                 <div class="stat-label">Total Subscriptions</div>
             </div>
-
+            <div class="stat-card bookings" style="background:#ffe0b2;">
+                <div class="stat-number">৳ <?php echo number_format($total_subscription_revenue, 2); ?></div>
+                <div class="stat-label">Total Subscription Revenue</div>
+            </div>
 
         </div>
 

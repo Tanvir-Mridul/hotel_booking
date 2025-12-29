@@ -256,7 +256,7 @@ $result = mysqli_query($conn, $sql);
       List your hotel on our platform and reach thousands of travelers
       across Bangladesh.
     </p>
-    <a href="login.php" class="owner-cta-btn">
+    <a href="/hotel_booking/register.php" class="owner-cta-btn">
       List Your Hotel
     </a>
   </div>
