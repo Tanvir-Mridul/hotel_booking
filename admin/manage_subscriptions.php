@@ -20,8 +20,7 @@ if (isset($_GET['action'], $_GET['id'])) {
     $action = $_GET['action'];
 
     // get package duration
-    $pkg = mysqli_fetch_assoc(mysqli_query($conn, "
-        SELECT s.duration_days 
+    $pkg = mysqli_fetch_assoc(mysqli_query($conn, "SELECT s.duration_days 
         FROM owner_subscriptions os
         JOIN subscriptions s ON os.package_id = s.id
         WHERE os.id='$id'
@@ -31,8 +30,7 @@ if (isset($_GET['action'], $_GET['id'])) {
 
     if ($action == 'approve') {
 
-        mysqli_query($conn, "
-            UPDATE owner_subscriptions 
+        mysqli_query($conn, "UPDATE owner_subscriptions 
             SET 
                 status='approved',
                 start_date=CURDATE(),
@@ -40,25 +38,43 @@ if (isset($_GET['action'], $_GET['id'])) {
             WHERE id='$id'
         ");
 
-    } elseif ($action == 'off') {
+    } elseif ($action == 'off' || $action == 'expire') {
 
-        mysqli_query($conn, "
-            UPDATE owner_subscriptions 
-            SET status='expired'
-            WHERE id='$id'
-        ");
+    // subscription off
+    mysqli_query($conn, "UPDATE owner_subscriptions 
+        SET status='expired' 
+        WHERE id='$id'
+    ");
 
-    } elseif ($action == 'on') {
+    // owner id বের করো
+    $q = mysqli_query($conn,"SELECT owner_id FROM owner_subscriptions WHERE id='$id'");
+    $row = mysqli_fetch_assoc($q);
+    $owner_id = $row['owner_id'];
 
-        mysqli_query($conn, "
-            UPDATE owner_subscriptions 
-            SET 
-                status='approved',
-                start_date=CURDATE(),
-                end_date=DATE_ADD(CURDATE(), INTERVAL $days DAY)
-            WHERE id='$id'
-        ");
-    }
+    // owner's hotels automatically off
+    mysqli_query($conn,"UPDATE hotels 
+        SET status='off' 
+        WHERE owner_id='$owner_id'
+    ");
+} elseif($action == 'on') {
+    // subscription on
+    mysqli_query($conn, "UPDATE owner_subscriptions 
+        SET status='approved' 
+        WHERE id='$id'
+    ");
+
+    // owner id বের করো
+    $q = mysqli_query($conn,"SELECT owner_id FROM owner_subscriptions WHERE id='$id'");
+    $row = mysqli_fetch_assoc($q);
+    $owner_id = $row['owner_id'];
+
+    // hotels on
+    mysqli_query($conn, "UPDATE hotels
+        SET status='approved'
+        WHERE owner_id='$owner_id'
+        AND status='off'
+    ");
+}
 
     header("Location: manage_subscriptions.php");
     exit();

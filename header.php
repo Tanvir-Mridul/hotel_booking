@@ -5,25 +5,33 @@ if (session_status() === PHP_SESSION_NONE) {
 
 include_once "db_connect.php";
 
-// Check owner subscription
-$show_premium = false;
+/* ===== PREMIUM CHECK START ===== */
+$is_premium = false;
+$remaining_days = 0;
 
-if (isset($_SESSION['user_id']) && $_SESSION['role'] == 'owner') {
+if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'owner') {
     $owner_id = $_SESSION['user_id'];
 
-    $sub_result = mysqli_query($conn, "SELECT status
+    $sub_q = mysqli_query($conn, "
+        SELECT end_date, DATEDIFF(end_date, CURDATE()) AS remaining_days
         FROM owner_subscriptions
-        WHERE owner_id = '$owner_id'
+        WHERE owner_id='$owner_id'
+        AND status='approved'
         ORDER BY id DESC
         LIMIT 1
     ");
-    $subscription = mysqli_fetch_assoc($sub_result);
 
-    if ($subscription && $subscription['status'] == 'approved') {
-        $show_premium = true;
+    if ($sub_q && mysqli_num_rows($sub_q) > 0) {
+        $sub = mysqli_fetch_assoc($sub_q);
+        $remaining_days = (int) $sub['remaining_days'];
+
+        if ($remaining_days > 0) {
+            $is_premium = true;
+        }
     }
 }
-
+/* ===== PREMIUM CHECK END ===== */
+/* ===== Notification  ===== */
 $notifications = [];
 
 if (isset($_SESSION['user_id'], $_SESSION['role'])) {
@@ -43,6 +51,10 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
     }
 }
 ?>
+
+
+
+
 
 
 
@@ -125,6 +137,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 <a class="dropdown-item" href="/hotel_booking/user/profile.php">
                                     <i class="fas fa-user mr-2"></i> Profile
                                 </a>
+                                <!-- Owner Links -->
                             <?php elseif ($_SESSION['role'] == 'owner'): ?>
                                 <a class="dropdown-item" href="/hotel_booking/owner/dashboard.php">
                                     <i class="fas fa-tachometer-alt mr-2"></i> Owner Panel
@@ -135,9 +148,10 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 <a class="dropdown-item" href="/hotel_booking/owner/manage_bookings.php">
                                     <i class="fas fa-plus-circle mr-2"></i> Manage Booking
                                 </a>
-                                 <a class="dropdown-item" href="/hotel_booking/owner/subscription.php">
+                                <a class="dropdown-item" href="/hotel_booking/owner/subscription.php">
                                     <i class="fas fa-plus-circle mr-2"></i> Subscription
                                 </a>
+                                <!-- Admin Links -->
                             <?php elseif ($_SESSION['role'] == 'admin'): ?>
                                 <a class="dropdown-item" href="admin/dashboard.php">
                                     <i class="fas fa-cog mr-2"></i> Admin Panel
@@ -155,41 +169,68 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                             </a>
                         </div>
                     </li>
+                    <!-- PREMIUM  -->
+                    <ul class="navbar-nav ml-auto">
 
-                  <?php if($show_premium): ?>
-    <li class="nav-item mr-3">
-        <span class="badge badge-warning" style="font-size: 14px; padding: 8px 12px;">
-            🌟 Premium
-        </span>
-    </li>
-<?php endif; ?>
-                  <!-- Notification Bell -->
-<li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-        🔔
-        <?php if (count($notifications) > 0): ?>
-            <span class="badge bg-danger"><?php echo count($notifications); ?></span>
-        <?php endif; ?>
-    </a>
+                        <?php if (isset($_SESSION['user_id'])): ?>
 
-    <ul class="dropdown-menu dropdown-menu-end" style="width:300px;">
-        <?php if (count($notifications) > 0): ?>
-            <?php foreach ($notifications as $n): ?>
-                <li>
-                    <a href="<?php echo $n['link'] ?? '#'; ?>" class="dropdown-item">
-                        <?php echo $n['message']; ?><br>
-                        <small class="text-muted">
-                            <?php echo date("d M, h:i A", strtotime($n['created_at'])); ?>
-                        </small>
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <li class="dropdown-item text-muted">No notifications</li>
-        <?php endif; ?>
-    </ul>
-</li>
+                            <!-- PREMIUM BADGE (ONLY OWNER) -->
+                            <?php if ($_SESSION['role'] === 'owner' && $is_premium): ?>
+                                <li class="nav-item d-flex align-items-center">
+                                    <span class="badge badge-warning ml-2">
+                                        ⭐ Premium | <?= $remaining_days ?> days left
+                                    </span>
+                                </li>
+                            <?php endif; ?>
+
+                            <!-- UPGRADE NOW (ONLY OWNER & NOT PREMIUM) -->
+                            <?php if ($_SESSION['role'] === 'owner' && !$is_premium): ?>
+                                <li class="nav-item">
+                                    <a href="/hotel_booking/owner/subscription.php" class="btn btn-warning btn-sm ml-2">
+                                        ⭐ Upgrade Now
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+
+                           
+
+                            
+
+                        
+                           
+                        <?php endif; ?>
+
+                    </ul>
+
+                    <!-- Notification Bell -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                            🔔
+                            <?php if (count($notifications) > 0): ?>
+                                <span class="badge bg-danger"><?php echo count($notifications); ?></span>
+                            <?php endif; ?>
+                        </a>
+
+                        <ul class="dropdown-menu dropdown-menu-end" style="width:300px;">
+                            <?php if (count($notifications) > 0): ?>
+                                <?php foreach ($notifications as $n): ?>
+                                    <li>
+                                        <a href="<?php echo $n['link'] ?? '#'; ?>" class="dropdown-item">
+                                            <?php echo $n['message']; ?><br>
+                                            <small class="text-muted">
+                                                <?php echo date("d M, h:i A", strtotime($n['created_at'])); ?>
+                                            </small>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li class="dropdown-item text-muted">No notifications</li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
 
 
 

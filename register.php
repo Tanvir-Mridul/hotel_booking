@@ -28,6 +28,9 @@
 
         <form action="register_process.php" method="POST">
             <div class="form-group">
+                <input type="name" name="name" class="form-control" placeholder="Name" required>
+            </div>
+            <div class="form-group">
                 <input type="email" name="email" class="form-control" placeholder="Email" required>
             </div>
 
