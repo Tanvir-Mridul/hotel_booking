@@ -178,7 +178,15 @@ $result = mysqli_query($conn, $sql);
    
     
     <!-- Add New Button -->
-    <a href="upload_flat.php" class="btn btn-primary mb-3">+ Add New Flat</a>
+   <?php if ($is_premium || $total_flats < 1): ?>
+    <a href="upload_flat.php" class="btn btn-primary mb-3">
+        + Add New Flat
+    </a>
+<?php else: ?>
+    <button class="btn btn-secondary mb-3" disabled>
+        Flat limit reached
+    </button>
+<?php endif; ?>
     
     <!-- Flats List -->
     <div class="row">

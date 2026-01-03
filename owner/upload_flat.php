@@ -9,6 +9,26 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'owner') {
 }
 $owner_id = $_SESSION['user_id'];
 
+/* ===== COUNT OWNER FLATS ===== */
+$count_q = mysqli_query($conn, "SELECT COUNT(*) AS total 
+    FROM hotels 
+    WHERE owner_id='$owner_id'
+");
+$total_flats = mysqli_fetch_assoc($count_q)['total'];
+
+/* ===== PREMIUM CHECK ===== */
+$is_premium = false;
+
+$sub_q = mysqli_query($conn, "SELECT id FROM owner_subscriptions
+    WHERE owner_id='$owner_id'
+    AND status='approved'
+    AND end_date >= CURDATE()
+    LIMIT 1
+");
+
+if ($sub_q && mysqli_num_rows($sub_q) > 0) {
+    $is_premium = true;
+}
 
 $check = mysqli_query($conn,
     "SELECT * FROM owner_subscriptions 
@@ -16,20 +36,21 @@ $check = mysqli_query($conn,
      AND end_date >= CURDATE()"
 );
 
-if(mysqli_num_rows($check)==0){
-    die("<div style='padding:20px;color:red;font-weight:bold'>
-         Please subscribe & wait for admin approval
-         </div>");
+
+/* ===== FLAT LIMIT CHECK ===== */
+if (!$is_premium && $total_flats >= 1) {
+    echo "
+    <div style='padding:20px; margin:40px auto; max-width:600px;
+         background:#fff3cd; border-left:5px solid #ffc107'>
+        <h4>🚫 Flat Limit Reached</h4>
+        <p>Free owners can upload only <b>1 flat</b>.</p>
+        <a href='subscription.php' class='btn btn-warning'>
+            Upgrade to Premium
+        </a>
+    </div>
+    ";
+    exit();
 }
-
-
-if(mysqli_num_rows($check)==0){
-echo "<div class='alert alert-danger'>
-    You must have an active subscription to upload flats.
-    </div>";
-    exit;
-}
-
 
 ?>
 
@@ -184,7 +205,7 @@ echo "<div class='alert alert-danger'>
                 <input type="file" name="image" class="form-control-file" required>
                 <small class="text-muted">Max size: 2MB. JPG, PNG, JPEG</small>
             </div>
-
+             
             <button type="submit" class="submit-btn">
                 <i class="fas fa-upload"></i> Upload Flat
             </button>

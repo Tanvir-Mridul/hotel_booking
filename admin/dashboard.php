@@ -40,7 +40,7 @@ $total_subscription_revenue = mysqli_fetch_assoc(mysqli_query($conn, "SELECT SUM
         }
 
         .main {
-            margin-left: 220px;
+            margin-left: 50px;
             margin-top: 60px;
             padding: 20px;
             width: 100%;
