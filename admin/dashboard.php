@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 
 include "../db_connect.php";
-include "../header.php";
+
 include "../cron/expire_subscriptions.php";
 
 // Count stats

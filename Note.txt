@@ -1,4 +1,4 @@
-1. Search bar dynamic (DB based)
-2. Responsive navbar + login dropdown
+1. Search bar dynamic (DB based)  //done
+2. Responsive navbar + login dropdown // no need
 3.✔ Premium owner এর জন্য special dashboard
 ✔ Flat limit (Free: 1, Premium: Unlimited)

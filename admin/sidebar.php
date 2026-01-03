@@ -18,8 +18,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="sidebar-links">
         <a href="dashboard.php" class="<?= $current_page=='dashboard.php'?'active':'' ?>">📊 Dashboard</a>
         <a href="hotels.php" class="<?= $current_page=='hotels.php'?'active':'' ?>">🏨 Manage Hotels</a>
+        
         <a href="users.php" class="<?= $current_page=='users.php'?'active':'' ?>">👥 Manage Users</a>
         <a href="manage_subscriptions.php" class="<?= $current_page=='manage_subscriptions.php'?'active':'' ?>">📅 Manage Subscription</a>
+        <a href="manage_packages.php"class="<?= $current_page=='manage_packages.php'?'active':'' ?>">📦 Subscription Packages</a>
+       
+        <a href="../index.php" class="home">🏠 Home</a>
         <a href="../logout.php" class="logout">🚪 Logout</a>
     </div>
 </div>
@@ -37,6 +41,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     color: #fff;
     font-family: 'Segoe UI', sans-serif;
 }
+
 
 .sidebar-header {
     padding: 20px;
@@ -58,6 +63,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     padding: 20px 0;
     display: flex;
     flex-direction: column;
+    
 }
 
 .sidebar-links a {
@@ -74,12 +80,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
     background: #3498db;
     color: #fff;
     transform: translateX(3px);
+    text-decoration: none;
 }
 
 .sidebar-links a.active {
     background: #2980b9;
     color: #fff;
     font-weight: 600;
+    text-decoration: none;
 }
 
 .sidebar-links a.logout {
@@ -91,4 +99,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
 .sidebar-links a.logout:hover {
     background: #c0392b;
 }
+
+.sidebar-links a.home {
+    background: #e6079bff;
+    margin-top: 60px;
+    margin-bottom: 5px;
+}
+
+.sidebar-links a.home:hover {
+    background: #f0084dff;
+}
+</style>
+
 </style>

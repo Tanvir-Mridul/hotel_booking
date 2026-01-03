@@ -11,6 +11,33 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'owner') {
 
 $owner_id = $_SESSION['user_id'];
 
+/* ===== PREMIUM CHECK ===== */
+$is_premium = false;
+$remaining_days = 0;
+
+$sub_q = mysqli_query($conn, "
+    SELECT end_date, DATEDIFF(end_date, CURDATE()) AS remaining_days
+    FROM owner_subscriptions
+    WHERE owner_id='$owner_id'
+    AND status='approved'
+    ORDER BY id DESC
+    LIMIT 1
+");
+
+if ($sub_q && mysqli_num_rows($sub_q) > 0) {
+    $sub = mysqli_fetch_assoc($sub_q);
+    $remaining_days = (int)$sub['remaining_days'];
+
+    if ($remaining_days > 0) {
+        $is_premium = true;
+    }
+}
+$featured_result = mysqli_query($conn, "SELECT COUNT(*) as featured 
+    FROM hotels 
+    WHERE owner_id='$owner_id' AND status='approved'
+");
+$featured = mysqli_fetch_assoc($featured_result)['featured'];
+
 // Count stats
 $total_result = mysqli_query($conn, "SELECT COUNT(*) as total FROM hotels WHERE owner_id='$owner_id'");
 $total_row = mysqli_fetch_assoc($total_result);
@@ -96,23 +123,59 @@ $result = mysqli_query($conn, $sql);
 
 <!-- Main Content -->
 <div class="main">
-    <!-- Stats Section -->
-    <div class="stats">
-        <div class="stat-card total">
+
+
+
+<?php if($is_premium): ?>
+<!-- ⭐ PREMIUM DASHBOARD -->
+<div class="card shadow mb-4">
+    <div class="card-body d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="mb-1">⭐ Premium Owner Dashboard</h5>
+            <small class="text-muted">
+                Subscription Active | <?= $remaining_days ?> days left
+            </small>
+        </div>
+        <span class="badge badge-warning p-2">PREMIUM</span>
+    </div>
+</div>
+
+<div class="stats">
+    
+<div class="stat-card total">
             <div class="stat-number"><?php echo $total_flats; ?></div>
             <div class="stat-label">Total Flats</div>
         </div>
-        
-        <div class="stat-card approved">
-            <div class="stat-number"><?php echo $approved_flats; ?></div>
-            <div class="stat-label">Approved</div>
-        </div>
-        
+    <div class="stat-card approved">
+        <div class="stat-number"><?= $approved_flats ?></div>
+        <div class="stat-label">Approved Hotels</div>
+    </div>
         <div class="stat-card pending">
             <div class="stat-number"><?php echo $pending_flats; ?></div>
             <div class="stat-label">Pending</div>
         </div>
+    
+
+    <div class="stat-card pending">
+        <div class="stat-number"><?= $remaining_days ?></div>
+        <div class="stat-label">Days Left</div>
     </div>
+</div>
+<?php else: ?>
+
+<!-- 🚫 FREE OWNER VIEW -->
+<div class="alert alert-warning d-flex justify-content-between align-items-center">
+    <div>
+        <strong>Premium Features Locked</strong><br>
+        Feature your hotels & get analytics
+    </div>
+    <a href="subscription.php" class="btn btn-warning btn-sm">
+        Upgrade Now
+    </a>
+</div>
+
+<?php endif; ?>
+   
     
     <!-- Add New Button -->
     <a href="upload_flat.php" class="btn btn-primary mb-3">+ Add New Flat</a>
