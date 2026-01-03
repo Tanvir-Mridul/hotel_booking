@@ -32,6 +32,8 @@ if(!empty($_FILES['image']['name'])) {
 $sql = "INSERT INTO hotels (owner_id, hotel_name, location, price, description, image, status) 
         VALUES ('$owner_id', '$hotel_name', '$location', '$price', '$description', '$image_name', 'pending')";
 
+
+
 // Debug: Show the SQL
 // echo "SQL: " . htmlspecialchars($sql) . "<br>";
 

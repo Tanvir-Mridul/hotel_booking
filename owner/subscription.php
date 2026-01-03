@@ -19,6 +19,9 @@ $has_active = mysqli_num_rows($check_result) > 0;
 
 // Get all packages
 $packages = mysqli_query($conn,"SELECT * FROM subscriptions");
+
+
+
 ?>
 
 <!DOCTYPE html>

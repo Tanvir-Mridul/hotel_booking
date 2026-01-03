@@ -5,6 +5,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 include_once "db_connect.php";
 
+
 /* ===== PREMIUM CHECK START ===== */
 $is_premium = false;
 $remaining_days = 0;
@@ -31,17 +32,17 @@ if (isset($_SESSION['user_id']) && $_SESSION['role'] === 'owner') {
     }
 }
 /* ===== PREMIUM CHECK END ===== */
-/* ===== Notification  ===== */
-$notifications = [];
+
+/* ===== Notification ===== */
 
 if (isset($_SESSION['user_id'], $_SESSION['role'])) {
     $uid = $_SESSION['user_id'];
     $role = $_SESSION['role'];
 
+    $notifications = [];
     $noti_q = mysqli_query($conn, "
         SELECT * FROM notifications
-        WHERE receiver_id='$uid' 
-        AND receiver_role='$role'
+        WHERE receiver_id='$uid' AND receiver_role='$role'
         ORDER BY id DESC
         LIMIT 5
     ");
@@ -49,7 +50,11 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
     while ($row = mysqli_fetch_assoc($noti_q)) {
         $notifications[] = $row;
     }
+} else {
+    $notifications = [];
 }
+
+
 ?>
 
 
@@ -203,34 +208,32 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                     </ul>
 
                     <!-- Notification Bell -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-                            🔔
-                            <?php if (count($notifications) > 0): ?>
-                                <span class="badge bg-danger"><?php echo count($notifications); ?></span>
-                            <?php endif; ?>
-                        </a>
+                 <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+        🔔
+        <?php if(count($notifications) > 0): ?>
+            <span class="badge bg-danger"><?php echo count($notifications); ?></span>
+        <?php endif; ?>
+    </a>
 
-                        <ul class="dropdown-menu dropdown-menu-end" style="width:300px;">
-                            <?php if (count($notifications) > 0): ?>
-                                <?php foreach ($notifications as $n): ?>
-                                    <li>
-                                        <a href="<?php echo $n['link'] ?? '#'; ?>" class="dropdown-item">
-                                            <?php echo $n['message']; ?><br>
-                                            <small class="text-muted">
-                                                <?php echo date("d M, h:i A", strtotime($n['created_at'])); ?>
-                                            </small>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                <?php endforeach; ?>
-                            <?php else: ?>
-                                <li class="dropdown-item text-muted">No notifications</li>
-                            <?php endif; ?>
-                        </ul>
-                    </li>
+    <ul class="dropdown-menu dropdown-menu-end" style="width:300px;">
+        <?php if(count($notifications) > 0): ?>
+            <?php foreach($notifications as $n): ?>
+                <li>
+                    <a href="<?php echo $n['link'] ?? '#'; ?>" class="dropdown-item">
+                        <?php echo $n['message']; ?><br>
+                        <small class="text-muted">
+                            <?php echo date("d M, h:i A", strtotime($n['created_at'])); ?>
+                        </small>
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <li class="dropdown-item text-muted">No notifications</li>
+        <?php endif; ?>
+    </ul>
+</li>
 
 
 

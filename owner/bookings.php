@@ -4,8 +4,7 @@ include "../db_connect.php";
 
 $owner_id = $_SESSION['user_id'];
 
-$sql = "
-SELECT 
+$sql = "SELECT 
     b.*, 
     u.name AS user_name,
     h.hotel_name

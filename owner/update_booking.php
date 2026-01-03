@@ -26,8 +26,7 @@ if ($action == 'confirm') {
     ");
 
     // 🔔 notify user
-    mysqli_query($conn,"
-    INSERT INTO notifications (receiver_id, receiver_role, message, link)
+    mysqli_query($conn,"INSERT INTO notifications (receiver_id, receiver_role, message, link)
     VALUES (
         '$user_id',
         'user',
@@ -43,8 +42,7 @@ if ($action == 'cancel') {
     ");
 
     // 🔔 notify user
-    mysqli_query($conn,"
-    INSERT INTO notifications (receiver_id, receiver_role, message, link)
+    mysqli_query($conn,"INSERT INTO notifications (receiver_id, receiver_role, message, link)
     VALUES (
         '$user_id',
         'user',

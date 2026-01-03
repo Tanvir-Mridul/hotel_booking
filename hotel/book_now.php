@@ -41,8 +41,7 @@ $owner_id   = $hotel['owner_id'];
 /* ===============================
    Insert booking (SAFE)
 ================================ */
-$insert = $conn->prepare("
-    INSERT INTO bookings 
+$insert = $conn->prepare("INSERT INTO bookings 
     (user_id, owner_id, hotel_id, hotel_name, location, price, booking_date, status)
     VALUES (?, ?, ?, ?, ?, ?, NOW(), 'pending')
 ");

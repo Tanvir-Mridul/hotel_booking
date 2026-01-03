@@ -35,6 +35,8 @@ $sql = "SELECT hotels.*, users.name AS owner_name
             ELSE 4
         END, hotels.id DESC";
 $result = mysqli_query($conn, $sql);
+
+
 ?>
 
 <!DOCTYPE html>

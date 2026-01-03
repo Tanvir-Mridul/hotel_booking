@@ -38,6 +38,7 @@ if (isset($_GET['action'], $_GET['id'])) {
             WHERE id='$id'
         ");
 
+
     } elseif ($action == 'off' || $action == 'expire') {
 
     // subscription off
@@ -45,6 +46,8 @@ if (isset($_GET['action'], $_GET['id'])) {
         SET status='expired' 
         WHERE id='$id'
     ");
+
+// 
 
     // owner id বের করো
     $q = mysqli_query($conn,"SELECT owner_id FROM owner_subscriptions WHERE id='$id'");

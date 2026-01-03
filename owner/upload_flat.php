@@ -50,6 +50,7 @@ if (!$is_premium && $total_flats >= 1) {
     </div>
     ";
     exit();
+    
 }
 
 ?>

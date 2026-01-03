@@ -26,6 +26,7 @@ INSERT INTO owner_subscriptions(owner_id, subscription_id, status)
 VALUES($owner_id,$sub_id,'pending')
 ");
 
+
 $owner_sub_id = mysqli_insert_id($conn);
 
 // redirect to payment

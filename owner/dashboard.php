@@ -15,8 +15,7 @@ $owner_id = $_SESSION['user_id'];
 $is_premium = false;
 $remaining_days = 0;
 
-$sub_q = mysqli_query($conn, "
-    SELECT end_date, DATEDIFF(end_date, CURDATE()) AS remaining_days
+$sub_q = mysqli_query($conn, " SELECT end_date, DATEDIFF(end_date, CURDATE()) AS remaining_days
     FROM owner_subscriptions
     WHERE owner_id='$owner_id'
     AND status='approved'
