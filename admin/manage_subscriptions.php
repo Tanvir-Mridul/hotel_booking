@@ -2,6 +2,7 @@
 session_start();
 include "../db_connect.php";
 include "sidebar.php";
+include "../includes/notification_helper.php";
 
 mysqli_query($conn, "UPDATE owner_subscriptions 
     SET status='expired'
@@ -20,13 +21,14 @@ if (isset($_GET['action'], $_GET['id'])) {
     $action = $_GET['action'];
 
     // get package duration
-    $pkg = mysqli_fetch_assoc(mysqli_query($conn, "SELECT s.duration_days 
+    $pkg = mysqli_fetch_assoc(mysqli_query($conn, "SELECT s.duration_days, os.owner_id
         FROM owner_subscriptions os
         JOIN subscriptions s ON os.package_id = s.id
         WHERE os.id='$id'
     "));
 
     $days = (int) $pkg['duration_days'];
+    $owner_id = $pkg['owner_id'];
 
     if ($action == 'approve') {
 
@@ -38,51 +40,66 @@ if (isset($_GET['action'], $_GET['id'])) {
             WHERE id='$id'
         ");
 
+        // 🔔 Notify Owner
+        sendNotification($owner_id, 'owner',
+            "✅ Your subscription has been approved! Premium features activated.",
+            "/hotel_booking/owner/dashboard.php"
+        );
 
     } elseif ($action == 'off' || $action == 'expire') {
 
-    // subscription off
-    mysqli_query($conn, "UPDATE owner_subscriptions 
-        SET status='expired' 
-        WHERE id='$id'
-    ");
+        // subscription off
+        mysqli_query($conn, "UPDATE owner_subscriptions 
+            SET status='expired' 
+            WHERE id='$id'
+        ");
 
-// 
+        // owner id বের করো
+        $q = mysqli_query($conn,"SELECT owner_id FROM owner_subscriptions WHERE id='$id'");
+        $row = mysqli_fetch_assoc($q);
+        $owner_id = $row['owner_id'];
 
-    // owner id বের করো
-    $q = mysqli_query($conn,"SELECT owner_id FROM owner_subscriptions WHERE id='$id'");
-    $row = mysqli_fetch_assoc($q);
-    $owner_id = $row['owner_id'];
+        // owner's hotels automatically off
+        mysqli_query($conn,"UPDATE hotels 
+            SET status='off' 
+            WHERE owner_id='$owner_id'
+        ");
+        
+        // 🔔 Notify Owner
+        sendNotification($owner_id, 'owner',
+            "⚠️ Your subscription has been deactivated. Your hotels are now offline.",
+            "/hotel_booking/owner/subscription.php"
+        );
+        
+    } elseif($action == 'on') {
+        // subscription on
+        mysqli_query($conn, "UPDATE owner_subscriptions 
+            SET status='approved' 
+            WHERE id='$id'
+        ");
 
-    // owner's hotels automatically off
-    mysqli_query($conn,"UPDATE hotels 
-        SET status='off' 
-        WHERE owner_id='$owner_id'
-    ");
-} elseif($action == 'on') {
-    // subscription on
-    mysqli_query($conn, "UPDATE owner_subscriptions 
-        SET status='approved' 
-        WHERE id='$id'
-    ");
+        // owner id বের করো
+        $q = mysqli_query($conn,"SELECT owner_id FROM owner_subscriptions WHERE id='$id'");
+        $row = mysqli_fetch_assoc($q);
+        $owner_id = $row['owner_id'];
 
-    // owner id বের করো
-    $q = mysqli_query($conn,"SELECT owner_id FROM owner_subscriptions WHERE id='$id'");
-    $row = mysqli_fetch_assoc($q);
-    $owner_id = $row['owner_id'];
-
-    // hotels on
-    mysqli_query($conn, "UPDATE hotels
-        SET status='approved'
-        WHERE owner_id='$owner_id'
-        AND status='off'
-    ");
-}
+        // hotels on
+        mysqli_query($conn, "UPDATE hotels
+            SET status='approved'
+            WHERE owner_id='$owner_id'
+            AND status='off'
+        ");
+        
+        // 🔔 Notify Owner
+        sendNotification($owner_id, 'owner',
+            "✅ Your subscription has been reactivated. Hotels are now online.",
+            "/hotel_booking/owner/dashboard.php"
+        );
+    }
 
     header("Location: manage_subscriptions.php");
     exit();
 }
-
 
 // Fetch all subscriptions
 $sql = "SELECT 

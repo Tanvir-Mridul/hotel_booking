@@ -9,7 +9,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'owner') {
 
 // Function to escape single quotes
 function clean_input($data) {
-    // Replace single quote with double single quotes for SQL
     return str_replace("'", "''", $data);
 }
 
@@ -23,7 +22,6 @@ $description = clean_input($_POST['description']);
 // Upload image
 $image_name = "default.jpg";
 if(!empty($_FILES['image']['name'])) {
-    // Clean image filename too
     $image_name = time() . "_" . str_replace("'", "", $_FILES['image']['name']);
     move_uploaded_file($_FILES['image']['tmp_name'], "../uploads/" . $image_name);
 }
@@ -32,28 +30,37 @@ if(!empty($_FILES['image']['name'])) {
 $sql = "INSERT INTO hotels (owner_id, hotel_name, location, price, description, image, status) 
         VALUES ('$owner_id', '$hotel_name', '$location', '$price', '$description', '$image_name', 'pending')";
 
-
-
-// Debug: Show the SQL
-// echo "SQL: " . htmlspecialchars($sql) . "<br>";
-
 if(mysqli_query($conn, $sql)) {
+    
+    // Include notification helper
+    include "../includes/notification_helper.php";
+    
+    // 🔔 Notify Admin - FIXED
+    $admin_q = mysqli_query($conn, "SELECT id FROM users WHERE role='admin' LIMIT 1");
+    
+    if ($admin_q && mysqli_num_rows($admin_q) > 0) {
+        $admin = mysqli_fetch_assoc($admin_q);
+        $admin_id = $admin['id'];
+        
+        // Get owner name
+        $owner_q = mysqli_query($conn, "SELECT name FROM users WHERE id='$owner_id'");
+        $owner = mysqli_fetch_assoc($owner_q);
+        $owner_name = $owner['name'] ?? "Owner ID: $owner_id";
+        
+        sendNotification($admin_id, 'admin',
+            "🏨 New flat uploaded by $owner_name - \"$hotel_name\" at $location (৳$price)",
+            "/hotel_booking/admin/hotels.php"
+        );
+    }
+    
+    // Also notify owner
+    sendNotification($owner_id, 'owner',
+        "📤 Your flat \"$hotel_name\" has been submitted for admin approval",
+        "/hotel_booking/owner/dashboard.php"
+    );
+    
     header("Location: dashboard.php?msg=pending");
 } else {
-    // If still error, try prepared statement
-    echo "<h3>Error Uploading Flat</h3>";
-    echo "Error: " . mysqli_error($conn) . "<br><br>";
-    
-    // Try alternative method
-    $stmt = $conn->prepare("INSERT INTO hotels (owner_id, hotel_name, location, price, description, image, status) 
-                            VALUES (?, ?, ?, ?, ?, ?, 'pending')");
-    $stmt->bind_param("issdss", $owner_id, $hotel_name, $location, $price, $description, $image_name);
-    
-    if($stmt->execute()) {
-        header("Location: dashboard.php?msg=pending");
-    } else {
-        echo "Prepared statement error: " . $stmt->error . "<br>";
-        echo "<a href='upload_flat.php' class='btn btn-primary'>Try Again</a>";
-    }
+    echo "Database error!";
 }
 ?>

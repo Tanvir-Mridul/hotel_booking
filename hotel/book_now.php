@@ -60,22 +60,34 @@ $insert->execute();
 $booking_id = $insert->insert_id;
 
 /* ===============================
+   Include notification helper
+================================ */
+include "../includes/notification_helper.php";
+
+/* ===============================
    Owner notification
 ================================ */
-$noti = $conn->prepare("
-    INSERT INTO notifications 
-    (receiver_id, receiver_role, message, link, created_at)
-    VALUES (?, 'owner', ?, ?, NOW())
-");
+sendNotification($owner_id, 'owner', 
+    "📅 New booking request for \"$hotel_name\" from " . $_SESSION['name'],
+    "/hotel_booking/owner/manage_bookings.php"
+);
 
-$message = "📢 New booking request for \"$hotel_name\"";
-$link    = "/hotel_booking/owner/manage_bookings.php";
-
-$noti->bind_param("iss", $owner_id, $message, $link);
-$noti->execute();
+/* ===============================
+   Admin notification
+================================ */
+// Find admin user (assuming admin id is 5)
+$admin_q = mysqli_query($conn, "SELECT id FROM users WHERE role='admin' LIMIT 1");
+$admin = mysqli_fetch_assoc($admin_q);
+if ($admin) {
+    sendNotification($admin['id'], 'admin',
+        "📅 New booking created for \"$hotel_name\"",
+        "/hotel_booking/admin/dashboard.php"
+    );
+}
 
 /* ===============================
    Redirect user
 ================================ */
 header("Location: ../user/my_booking.php?success=1");
 exit();
+?>

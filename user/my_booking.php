@@ -12,16 +12,29 @@ $user_id = (int)$_SESSION['user_id'];
 /* ❌❌ Cancel Booking (SECURE) ❌❌ */
 if (isset($_GET['cancel_id'])) {
     $cancel_id = (int)$_GET['cancel_id'];
-
-    mysqli_query(
-        $conn,
-        "UPDATE bookings 
-         SET status='cancelled' 
-         WHERE id=$cancel_id AND user_id=$user_id"
+    
+    // Get booking info first
+    $booking_q = mysqli_query($conn, 
+        "SELECT hotel_name, owner_id FROM bookings WHERE id=$cancel_id AND user_id=$user_id"
     );
-
-    header("Location: my_booking.php?msg=cancelled");
-    exit();
+    $booking_info = mysqli_fetch_assoc($booking_q);
+    
+    if ($booking_info) {
+        // Update booking status
+        mysqli_query($conn, "UPDATE bookings SET status='cancelled' WHERE id=$cancel_id");
+        
+        // Include notification helper
+        include "../includes/notification_helper.php";
+        
+        // Send notification to owner
+        sendNotification($booking_info['owner_id'], 'owner',
+            "❌ Booking cancelled for \"{$booking_info['hotel_name']}\" by " . $_SESSION['name'],
+            "/hotel_booking/owner/manage_bookings.php"
+        );
+        
+        header("Location: my_booking.php?msg=cancelled");
+        exit();
+    }
 }
 
 /* ✅ Booking List (PROPER JOIN) */
