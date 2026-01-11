@@ -181,6 +181,7 @@ $result = mysqli_query($conn, $sql);
     <a href="upload_flat.php" class="btn btn-primary mb-3">
         + Add New Flat
     </a>
+   
 <?php else: ?>
     <button class="btn btn-secondary mb-3" disabled>
         Flat limit reached

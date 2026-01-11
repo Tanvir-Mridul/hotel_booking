@@ -71,6 +71,11 @@ $result = mysqli_query($conn, $sql);
 <a href="update_booking.php?id=<?= $row['id']; ?>&action=confirm" class="btn btn-success btn-sm">Confirm</a>
 <a href="update_booking.php?id=<?= $row['id']; ?>&action=cancel" class="btn btn-danger btn-sm">Cancel</a>
 <?php endif; ?>
+<!-- Owner এর জন্য (manage_bookings.php) -->
+<a href="../chat/chat.php?user_id=<?= $row['user_id'] ?>" 
+   class="btn btn-sm btn-success">
+   <i class="fas fa-comment"></i> Chat
+</a>
 
 <a href="delete_booking.php?id=<?= $row['id']; ?>" 
    class="btn btn-dark btn-sm"

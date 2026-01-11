@@ -74,7 +74,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
     <div class="container">
         <!-- Logo/Brand -->
         <a class="navbar-brand font-weight-bold text-primary" href="/hotel_booking/index.php">
-            <i class="fas fa-hotel mr-2"></i> HOTEL BOOKING
+            <i class="fas fa-hotel mr-2"></i> STAYNOVA
         </a>
 
         <!-- Mobile Toggle Button -->
@@ -142,6 +142,24 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 <a class="dropdown-item" href="/hotel_booking/user/profile.php">
                                     <i class="fas fa-user mr-2"></i> Profile
                                 </a>
+                                <!-- Messages Link -->
+    <a class="dropdown-item" href="/hotel_booking/user/messages.php">
+        <i class="fas fa-comments mr-2"></i> Messages
+        <?php
+        // Unread message count
+        $uid = $_SESSION['user_id'];
+        $unread_q = mysqli_query($conn, "
+            SELECT COUNT(*) as unread 
+            FROM chat_messages 
+            WHERE receiver_id='$uid' 
+            AND receiver_role='user' 
+            AND is_read=0
+        ");
+        $unread = mysqli_fetch_assoc($unread_q)['unread'];
+        if ($unread > 0): ?>
+            <span class="badge bg-danger float-right"><?php echo $unread; ?></span>
+        <?php endif; ?>
+    </a>
                                 <!-- Owner Links -->
                             <?php elseif ($_SESSION['role'] == 'owner'): ?>
                                 <a class="dropdown-item" href="/hotel_booking/owner/dashboard.php">
@@ -156,6 +174,23 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 <a class="dropdown-item" href="/hotel_booking/owner/subscription.php">
                                     <i class="fas fa-plus-circle mr-2"></i> Subscription
                                 </a>
+                                 <a class="dropdown-item" href="/hotel_booking/owner/messages.php">
+        <i class="fas fa-comments mr-2"></i> Messages
+        <?php
+        $uid = $_SESSION['user_id'];
+        $unread_q = mysqli_query($conn, "
+            SELECT COUNT(*) as unread 
+            FROM chat_messages 
+            WHERE receiver_id='$uid' 
+            AND receiver_role='owner' 
+            AND is_read=0
+        ");
+        $unread = mysqli_fetch_assoc($unread_q)['unread'];
+        if ($unread > 0): ?>
+            <span class="badge bg-danger float-right"><?php echo $unread; ?></span>
+        <?php endif; ?>
+    </a>
+                                
                                 <!-- Admin Links -->
                             <?php elseif ($_SESSION['role'] == 'admin'): ?>
                                 <a class="dropdown-item" href="admin/dashboard.php">
@@ -197,43 +232,45 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 </li>
                             <?php endif; ?>
 
-                           
 
-                            
 
-                        
-                           
+
+
+
+
                         <?php endif; ?>
 
                     </ul>
 
                     <!-- Notification Bell -->
-                 <li class="nav-item dropdown">
-    <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
-        🔔
-        <?php if(count($notifications) > 0): ?>
-            <span class="badge bg-danger"><?php echo count($notifications); ?></span>
-        <?php endif; ?>
-    </a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown">
+                            🔔
+                            <?php if (count($notifications) > 0): ?>
+                                <span class="badge bg-danger"><?php echo count($notifications); ?></span>
+                            <?php endif; ?>
+                        </a>
 
-    <ul class="dropdown-menu dropdown-menu-end" style="width:300px;">
-        <?php if(count($notifications) > 0): ?>
-            <?php foreach($notifications as $n): ?>
-                <li>
-                    <a href="<?php echo $n['link'] ?? '#'; ?>" class="dropdown-item">
-                        <?php echo $n['message']; ?><br>
-                        <small class="text-muted">
-                            <?php echo date("d M, h:i A", strtotime($n['created_at'])); ?>
-                        </small>
-                    </a>
-                </li>
-                <li><hr class="dropdown-divider"></li>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <li class="dropdown-item text-muted">No notifications</li>
-        <?php endif; ?>
-    </ul>
-</li>
+                        <ul class="dropdown-menu dropdown-menu-end" style="width:300px;">
+                            <?php if (count($notifications) > 0): ?>
+                                <?php foreach ($notifications as $n): ?>
+                                    <li>
+                                        <a href="<?php echo $n['link'] ?? '#'; ?>" class="dropdown-item">
+                                            <?php echo $n['message']; ?><br>
+                                            <small class="text-muted">
+                                                <?php echo date("d M, h:i A", strtotime($n['created_at'])); ?>
+                                            </small>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <li class="dropdown-item text-muted">No notifications</li>
+                            <?php endif; ?>
+                        </ul>
+                    </li>
 
 
 

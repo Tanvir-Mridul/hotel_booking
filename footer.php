@@ -3,7 +3,7 @@
 
     <!-- About -->
     <div class="footer-box">
-      <h4>Hotel Booking</h4>
+      <h4>Staynova</h4>
       <p>
         A trusted online hotel booking platform providing
         verified hotels and secure booking experience.

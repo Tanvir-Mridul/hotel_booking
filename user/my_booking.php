@@ -29,12 +29,12 @@ $sql = "SELECT
     b.*, 
     h.location, 
     h.rooms, 
-    h.capacity 
+    h.capacity,
+    h.owner_id
 FROM bookings b
 LEFT JOIN hotels h ON b.hotel_id = h.id
 WHERE b.user_id = $user_id
-ORDER BY b.id DESC
-";
+ORDER BY b.id DESC";
 
 $result = mysqli_query($conn, $sql);
 ?>
@@ -44,7 +44,7 @@ $result = mysqli_query($conn, $sql);
 <head>
     <title>My Bookings</title>
     
-      <!-- Font Awesome -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Bootstrap 4 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
@@ -57,6 +57,7 @@ $result = mysqli_query($conn, $sql);
         body { background: #f5f5f5; padding: 20px; }
         .booking-card { background: #fff; padding: 20px; border-radius: 8px; margin-bottom: 15px; }
         .badge { padding: 6px 12px; border-radius: 20px; }
+        .btn-chat { margin-left: 5px; }
     </style>
 </head>
 
@@ -104,7 +105,7 @@ $result = mysqli_query($conn, $sql);
                             ৳ <?php echo number_format($booking['price']); ?>
                         </h5>
                     </div>
-
+                       
                     <div class="col-md-4 text-right">
                         <?php
                         $badge = "badge-warning";
@@ -126,6 +127,15 @@ $result = mysqli_query($conn, $sql);
                                    class="btn btn-danger btn-sm">
                                     <i class="fas fa-times"></i> Cancel
                                 </a>
+                                
+                                <!-- চ্যাট বাটন -->
+                                <?php if(isset($booking['owner_id']) && $booking['owner_id'] > 0): ?>
+                                <a href="../chat/chat.php?owner_id=<?= $booking['owner_id'] ?>" 
+                                   class="btn btn-primary btn-sm btn-chat">
+                                   <i class="fas fa-comment"></i> Chat
+                                </a>
+                                <?php endif; ?>
+
                             <?php endif; ?>
                         </div>
                     </div>
