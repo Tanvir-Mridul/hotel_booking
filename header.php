@@ -85,7 +85,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
     <div class="container">
         <!-- Logo/Brand -->
         <a class="navbar-brand font-weight-bold text-primary" href="/hotel_booking/index.php">
-            <i class="fas fa-hotel mr-2"></i> STAYNOVA
+            <i class="fa-solid fa-plane"></i> STAYNOVA
         </a>
 
         <!-- Mobile Toggle Button -->
@@ -108,12 +108,12 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="/hotel_booking/about.php">
                         <i class="fas fa-info-circle mr-1"></i> About
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" href="/hotel_booking/contact.php">
                         <i class="fas fa-phone mr-1"></i> Contact
                     </a>
                 </li>

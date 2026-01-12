@@ -32,9 +32,7 @@ $result = mysqli_query($conn, $sql);
         <!-- Tabs -->
         <div class="search-tabs">
             <button class="active">Hotel</button>
-            <button disabled>Flight</button>
-            <button disabled>Tour</button>
-            <button disabled>Visa</button>
+           
         </div>
 
         <!-- Search Form -->
