@@ -134,23 +134,34 @@ $result = mysqli_query($conn, $sql);
                         <small class="text-muted">Booking ID: #<?php echo $booking['id']; ?></small>
 
                         <div class="mt-3">
-                            <?php if ($booking['status'] !== 'cancelled'): ?>
-                                <a href="?cancel_id=<?php echo $booking['id']; ?>"
-                                   onclick="return confirm('Cancel this booking?')"
-                                   class="btn btn-danger btn-sm">
-                                    <i class="fas fa-times"></i> Cancel
-                                </a>
-                                
-                                <!-- চ্যাট বাটন -->
-                                <?php if(isset($booking['owner_id']) && $booking['owner_id'] > 0): ?>
-                                <a href="../chat/chat.php?owner_id=<?= $booking['owner_id'] ?>" 
-                                   class="btn btn-primary btn-sm btn-chat">
-                                   <i class="fas fa-comment"></i> Chat
-                                </a>
-                                <?php endif; ?>
+    <?php if ($booking['status'] !== 'cancelled'): ?>
+        
+        <!-- PAYMENT BUTTON FOR PENDING STATUS -->
+        <?php if($booking['status'] == 'pending'): ?>
+            <a href="payment_checkout.php?booking_id=<?php echo $booking['id']; ?>" 
+               class="btn btn-success btn-sm">
+               <i class="fas fa-credit-card"></i> Pay Now
+            </a>
+        <?php endif; ?>
+        
+        <!-- CANCEL BUTTON -->
+        <a href="?cancel_id=<?php echo $booking['id']; ?>"
+           onclick="return confirm('Cancel this booking?')"
+           class="btn btn-danger btn-sm">
+            <i class="fas fa-times"></i> Cancel
+        </a>
+        
+        <!-- CHAT BUTTON -->
+        <?php if(isset($booking['owner_id']) && $booking['owner_id'] > 0): ?>
+        <a href="../chat/chat.php?owner_id=<?= $booking['owner_id'] ?>" 
+           class="btn btn-primary btn-sm btn-chat">
+           <i class="fas fa-comment"></i> Chat
+        </a>
+        <?php endif; ?>
 
-                            <?php endif; ?>
-                        </div>
+    <?php endif; ?>
+</div>
+
                     </div>
 
                 </div>

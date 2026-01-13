@@ -27,6 +27,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <a href="hotels.php" class="<?= $current_page == 'hotels.php' ? 'active' : '' ?>">🏨 Manage Hotels</a>
 
         <a href="users.php" class="<?= $current_page == 'users.php' ? 'active' : '' ?>">👥 Manage Users</a>
+         <!-- NEW MENU ITEM -->
+    <a href="manage_payments.php" class="<?= $current_page == 'manage_payments.php' ? 'active' : '' ?>">💰 User Payments</a>
         <a href="manage_subscriptions.php" class="<?= $current_page == 'manage_subscriptions.php' ? 'active' : '' ?>">📅
             Manage Subscription</a>
         <a href="manage_packages.php" class="<?= $current_page == 'manage_packages.php' ? 'active' : '' ?>">📦 Subscription

@@ -17,6 +17,15 @@ $pending_hotels = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as pen
 $total_users = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM users"))['total'];
 $total_subscriptions = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM owner_subscriptions"))['total']; // <-- এইটা নতুন
 
+// Commission stats - FIXED
+$commission_stats = mysqli_fetch_assoc(mysqli_query($conn, "
+    SELECT 
+        SUM(commission) as total_commission,
+        SUM(owner_get) as total_paid_to_owners,
+        COUNT(*) as total_transactions
+    FROM admin_commissions
+"));
+
 // Total subscription revenue
 $total_subscription_revenue = mysqli_fetch_assoc(mysqli_query($conn, "SELECT SUM(s.price) as total 
     FROM owner_subscriptions os
@@ -146,32 +155,33 @@ $total_subscription_revenue = mysqli_fetch_assoc(mysqli_query($conn, "SELECT SUM
         <h3>Admin Dashboard</h3>
 
         <!-- Stats Section -->
-        <div class="stats">
-            <div class="stat-card total-hotels">
-                <div class="stat-number"><?php echo $total_hotels; ?></div>
-                <div class="stat-label">Total Hotels</div>
-            </div>
+      <div class="stats">
+    <div class="stat-card total-hotels">
+        <div class="stat-number"><?php echo $total_hotels; ?></div>
+        <div class="stat-label">Total Hotels</div>
+    </div>
 
-            <div class="stat-card pending">
-                <div class="stat-number"><?php echo $pending_hotels; ?></div>
-                <div class="stat-label">Pending Approval</div>
-            </div>
+    <div class="stat-card pending">
+        <div class="stat-number"><?php echo $pending_hotels; ?></div>
+        <div class="stat-label">Pending Approval</div>
+    </div>
 
-            <div class="stat-card users">
-                <div class="stat-number"><?php echo $total_users; ?></div>
-                <div class="stat-label">Total Users</div>
-            </div>
-
-            <div class="stat-card bookings">
-                <div class="stat-number"><?php echo $total_subscriptions; ?></div>
-                <div class="stat-label">Total Subscriptions</div>
-            </div>
-            <div class="stat-card bookings" style="background:#ffe0b2;">
-                <div class="stat-number">৳ <?php echo number_format($total_subscription_revenue, 2); ?></div>
-                <div class="stat-label">Total Subscription Revenue</div>
-            </div>
-
-        </div>
+    <div class="stat-card users">
+        <div class="stat-number"><?php echo $total_users; ?></div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    
+    <!-- NEW COMMISSION STATS -->
+    <div class="stat-card" style="background:#d4edda;">
+        <div class="stat-number">৳ <?php echo number_format($commission_stats['total_commission'] ?? 0, 2); ?></div>
+        <div class="stat-label">Total Commission</div>
+    </div>
+    
+    <div class="stat-card" style="background:#d1ecf1;">
+        <div class="stat-number">৳ <?php echo number_format($commission_stats['total_paid_to_owners'] ?? 0, 2); ?></div>
+        <div class="stat-label">Paid to Owners</div>
+    </div>
+</div>
 
         <!-- Quick Actions -->
         <div class="actions">

@@ -268,6 +268,11 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 <a class="dropdown-item" href="/hotel_booking/owner/subscription.php">
                                     <i class="fas fa-crown mr-2"></i> Subscription
                                 </a>
+                                <a class="dropdown-item" href="/hotel_booking/owner/finance.php">
+                                     💰 Finance
+                                </a>
+
+                                
                                 <a class="dropdown-item" href="/hotel_booking/owner/messages.php">
                                     <i class="fas fa-comments mr-2"></i> Messages
                                     <?php
