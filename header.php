@@ -262,6 +262,9 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 <a class="dropdown-item" href="/hotel_booking/owner/upload_flat.php">
                                     <i class="fas fa-plus-circle mr-2"></i> Upload Flat
                                 </a>
+                                <a class="dropdown-item" href="/hotel_booking/owner/manage_dates.php">
+                                    <i class="fas fa-calendar-check mr-2"></i> Manage Date
+                                </a>
                                 <a class="dropdown-item" href="/hotel_booking/owner/manage_bookings.php">
                                     <i class="fas fa-calendar-check mr-2"></i> Manage Booking
                                 </a>

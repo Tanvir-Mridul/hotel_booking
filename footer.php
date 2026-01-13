@@ -14,10 +14,10 @@
     <div class="footer-box">
       <h4>Quick Links</h4>
       <ul>
-        <li><a href="index.php">Home</a></li>
-        <li><a href="hotel/hotel_list.php">Hotels</a></li>
-        <li><a href="#">About Us</a></li>
-        <li><a href="#">Contact</a></li>
+        <li><a href="/hotel_booking/index.php">Home</a></li>
+        <li><a href="/hotel_booking/hotel/hotel_list.php">Hotels</a></li>
+        <li><a href="/hotel_booking/about.php">About Us</a></li>
+        <li><a href="/hotel_booking/contact.php">Contact</a></li>
       </ul>
     </div>
 
@@ -34,7 +34,7 @@
     <!-- Contact -->
     <div class="footer-box">
       <h4>Contact</h4>
-      <p>Email: support@hotelbooking.com</p>
+      <p>Email: support@staynova.com</p>
       <p>Phone: +880 1234-567890</p>
     </div>
 

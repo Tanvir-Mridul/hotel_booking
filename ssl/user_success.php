@@ -85,6 +85,13 @@ if (!mysqli_query($conn, $insert_sql)) {
 $payment_id = mysqli_insert_id($conn);
 error_log("Payment inserted with ID: $payment_id");
 
+// Get booking date from bookings table
+$booking_date_q = mysqli_query($conn, "SELECT booking_date FROM bookings WHERE id='$booking_id'");
+$booking_date_row = mysqli_fetch_assoc($booking_date_q);
+$booking_date = $booking_date_row['booking_date'] ?? date('Y-m-d');
+
+// Update user_payments with booking_date
+mysqli_query($conn, "UPDATE user_payments SET booking_date='$booking_date' WHERE id='$payment_id'");
 // Update booking
 mysqli_query($conn, "UPDATE bookings SET status='confirmed' WHERE id='$booking_id'");
 

@@ -12,7 +12,6 @@ if (!isset($_GET['id'])) {
 
 $hotel_id = $_GET['id'];
 
-
 // 2️⃣ DB থেকে hotel data আনা
 $sql = "SELECT * FROM hotels WHERE id='$hotel_id' AND status='approved'";
 $result = mysqli_query($conn, $sql);
@@ -25,6 +24,7 @@ if (mysqli_num_rows($result) == 0) {
 
 $hotel = mysqli_fetch_assoc($result);
 ?>
+
 <link rel="stylesheet" href="../style.css">
 <div class="container mt-5">
     <div class="row">
@@ -37,45 +37,58 @@ $hotel = mysqli_fetch_assoc($result);
         <!-- Hotel Info -->
         <div class="col-md-6">
             <h2><?php echo $hotel['hotel_name']; ?></h2>
-
             <p><strong>Location:</strong> <?php echo $hotel['location']; ?></p>
-
             <p><?php echo $hotel['description']; ?></p>
-
             <h4 class="text-success">
                 ৳ <?php echo $hotel['price']; ?> / night
             </h4>
-
             <hr>
 
             <!-- Booking Section -->
             <?php if (isset($_SESSION['user_id']) && $_SESSION['role'] == 'user'): ?>
-                <form action="book_now.php" method="POST">
-
+                <form action="book_now.php" method="POST" id="bookingForm" onsubmit="return validateDate()">
                     <input type="hidden" name="hotel_id" value="<?php echo $hotel['id']; ?>">
-                    <input type="hidden" name="hotel_name" value="<?php echo $hotel['hotel_name']; ?>">
-                    <input type="hidden" name="location" value="<?php echo $hotel['location']; ?>">
-                    <input type="hidden" name="price" value="<?php echo $hotel['price']; ?>">
-
+                    
                     <div class="mb-3">
-                        <label>Booking Date</label>
-                        <input type="date" name="booking_date" class="form-control" required>
+                        <label><strong>Select Booking Date</strong></label>
+                        <input type="date" 
+                               name="booking_date" 
+                               id="bookingDate" 
+                               class="form-control" 
+                               min="<?php echo date('Y-m-d'); ?>" 
+                               required>
+                        <small class="text-muted">Select a date for your stay</small>
+                        <div id="dateMessage" class="mt-2" style="font-size: 14px;"></div>
                     </div>
-
-                    <button class="btn btn-primary">Book Now</button>
+                    
+                    <button type="submit" id="bookBtn" class="btn btn-primary">Book Now</button>
                 </form>
+
+                <script>
+                function validateDate() {
+                    const selectedDate = document.getElementById('bookingDate').value;
+                    const today = new Date().toISOString().split('T')[0];
+                    
+                    if (selectedDate < today) {
+                        alert('❌ Cannot book past dates!');
+                        return false;
+                    }
+                    
+                    return true;
+                }
+
+                // Set minimum date to today
+                document.getElementById('bookingDate').min = new Date().toISOString().split('T')[0];
+                </script>
             <?php else: ?>
                 <a href="../login.php" class="btn btn-warning">
                     Login to Book
                 </a>
             <?php endif; ?>
+            
         </div>
-
     </div>
-    <br>
-    <br>
-    <br>
-    <br>
+    <br><br><br><br>
 </div>
 
 <?php include "../footer.php"; ?>
