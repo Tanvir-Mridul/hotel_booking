@@ -66,6 +66,8 @@ $result = mysqli_query($conn, $sql);
     <!-- 🏨 Hotel Cards -->
     <div class="row">
 
+    
+
         <?php if (mysqli_num_rows($result) > 0): ?>
             <?php while ($row = mysqli_fetch_assoc($result)): ?>
 
@@ -92,12 +94,13 @@ $result = mysqli_query($conn, $sql);
                             </p>
                         </div>
 
-                        <div class="card-footer bg-white border-0">
-                            <a href="hotel_details.php?id=<?php echo $row['id']; ?>"
-                               class="btn btn-outline-primary w-100">
-                                View Details
-                            </a>
-                        </div>
+                       <!-- Hotel Card এর ভিতরে -->
+<div class="card-footer bg-white border-0">
+    <a href="hotel_details.php?id=<?php echo $row['id']; ?>"
+       class="btn btn-outline-primary w-100">
+        View Hotel & Rooms
+    </a>
+</div>
 
                     </div>
                 </div>

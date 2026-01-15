@@ -5,31 +5,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
-
-    <!-- BOOTSTRAP 4.5 -->
-    <link rel="stylesheet"
-          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-    <!-- FONT AWESOME -->
-    <script src="https://kit.fontawesome.com/162e11130a.js" crossorigin="anonymous"></script>
-
-    <!-- CUSTOM CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="auth-page">
     <div class="auth-card">
-
         <div class="auth-title text-center mb-4">
             <h1>Create Account</h1>
-            <p>Create an account to book hotels easily</p>
+            <p>Create an account to manage your hotel</p>
         </div>
 
         <form action="register_process.php" method="POST">
             <div class="form-group">
-                <input type="name" name="name" class="form-control" placeholder="Name" required>
+                <input type="text" name="name" class="form-control" placeholder="Your Name" required>
             </div>
+            
             <div class="form-group">
                 <input type="email" name="email" class="form-control" placeholder="Email" required>
             </div>
@@ -42,13 +34,26 @@
                 <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
             </div>
 
-             <div class="mb-3">
-            <label>Register As</label>
-            <select name="role" class="form-control">
-                <option value="user">User</option>
-                <option value="owner">Hotel Owner</option>
-            </select>
-        </div>
+            <!-- Hotel Information (Owner এর জন্য) -->
+            <div id="ownerFields" style="display:none;">
+                <div class="form-group">
+                    <label>Hotel Name *</label>
+                    <input type="text" name="hotel_name" class="form-control" placeholder="Enter your hotel name">
+                </div>
+                
+                <div class="form-group">
+                    <label>Hotel Location *</label>
+                    <input type="text" name="hotel_location" class="form-control" placeholder="e.g., Dhaka, Cox's Bazar">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label>Register As</label>
+                <select name="role" class="form-control" id="roleSelect" onchange="toggleHotelFields()">
+                    <option value="user">User (Book Hotels)</option>
+                    <option value="owner">Hotel Owner</option>
+                </select>
+            </div>
 
             <button type="submit" class="btn auth-btn btn-block">
                 Sign Up
@@ -60,19 +65,33 @@
                 Already have an account?
             </a>
         </div>
-
-        <div class="text-center mt-4 social-login">
-            <p class="text-muted mb-2">Or continue with</p>
-            <i class="fab fa-google"></i>
-            <i class="fab fa-facebook-f"></i>
-            <i class="fab fa-apple"></i>
-        </div>
-
     </div>
 </div>
 
+<script>
+function toggleHotelFields() {
+    var role = document.getElementById('roleSelect').value;
+    var ownerFields = document.getElementById('ownerFields');
+    
+    if (role === 'owner') {
+        ownerFields.style.display = 'block';
+        // Required fields
+        var hotelInputs = ownerFields.querySelectorAll('input');
+        hotelInputs.forEach(function(input) {
+            input.required = true;
+        });
+    } else {
+        ownerFields.style.display = 'none';
+        // Remove required
+        var hotelInputs = ownerFields.querySelectorAll('input');
+        hotelInputs.forEach(function(input) {
+            input.required = false;
+        });
+    }
+}
+</script>
+
 </body>
 </html>
-
 
 <?php include "footer.php"; ?>

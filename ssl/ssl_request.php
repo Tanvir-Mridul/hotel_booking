@@ -1,3 +1,4 @@
+//ssl_request.php//
 <?php
 session_start();
 include "../db_connect.php";
@@ -44,6 +45,7 @@ $post_data['product_profile'] = "general";
 
 $post_data['value_a'] = $_POST['package_id']; // package
 $post_data['value_b'] = $_SESSION['user_id']; // owner
+$post_data['value_c'] = $owner_id; //owner_id
 
 
 

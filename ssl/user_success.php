@@ -1,143 +1,242 @@
 <?php
-// DEBUG: Start session FIRST
 session_start();
-
-// Debug log
-error_log("=== SSL SUCCESS CALLBACK START ===");
-error_log("Session ID: " . session_id());
-error_log("POST Data: " . print_r($_POST, true));
-error_log("SESSION Data: " . print_r($_SESSION, true));
+error_log("=== SSL SUCCESS DEBUG VERSION ===");
 
 include "../db_connect.php";
 include "../includes/notification_helper.php";
 
-// Verify SSLCommerz response
-if (!isset($_POST['status']) || $_POST['status'] != "VALID") {
-    error_log("Payment status invalid: " . ($_POST['status'] ?? 'NO STATUS'));
-    die("Payment verification failed");
+// 1. সব POST data log করুন
+error_log("POST Data: " . print_r($_POST, true));
+error_log("SESSION Data: " . print_r($_SESSION, true));
+
+// 2. SSL response validate করুন
+if (!isset($_POST['status'])) {
+    die("No payment status received");
 }
 
-$tran_id    = $_POST['tran_id'];
-$amount     = $_POST['amount'];
-$booking_id = $_POST['value_a'] ?? 0;
-$user_id    = $_POST['value_b'] ?? 0;
+if ($_POST['status'] != "VALID") {
+    error_log("Payment failed. Status: " . $_POST['status']);
+    header("Location: ../user/payment_failed.php");
+    exit();
+}
 
-error_log("Processing payment: TranID=$tran_id, Amount=$amount, Booking=$booking_id, User=$user_id");
+// 3. Extract data
+$tran_id = $_POST['tran_id'] ?? '';
+$amount = $_POST['amount'] ?? 0;
+$booking_id = $_POST['value_a'] ?? 0; // booking_id
+$user_id = $_POST['value_b'] ?? 0; // user_id
 
-// Check if already processed
-$check_sql = "SELECT id FROM user_payments WHERE tran_id='$tran_id'";
+error_log("Extracted: TranID=$tran_id, Amount=$amount, Booking=$booking_id, User=$user_id");
+
+// 4. Check if already processed
+$check_sql = "SELECT id, receipt_id FROM user_payments WHERE tran_id='$tran_id'";
 $check_result = mysqli_query($conn, $check_sql);
 
 if (mysqli_num_rows($check_result) > 0) {
-    error_log("Duplicate transaction: $tran_id");
-    // Still redirect to receipt
-    $receipt_q = mysqli_query($conn, "SELECT receipt_id FROM user_payments WHERE tran_id='$tran_id' LIMIT 1");
-    $receipt = mysqli_fetch_assoc($receipt_q);
-    if ($receipt) {
-        header("Location: /hotel_booking/user/receipt.php?receipt_id=" . $receipt['receipt_id']);
-        exit();
-    }
+    $payment = mysqli_fetch_assoc($check_result);
+    error_log("Duplicate transaction found. Redirecting to receipt: " . $payment['receipt_id']);
+    header("Location: ../user/receipt.php?receipt_id=" . $payment['receipt_id']);
+    exit();
 }
 
-// Get booking details
+// 5. Get booking details
 $booking_q = mysqli_query($conn, "
-    SELECT b.*, u.name as user_name, h.owner_id, h.hotel_name 
+    SELECT b.*, 
+           u.name as user_name, 
+           h.hotel_name, 
+           h.owner_id,
+           r.room_title
     FROM bookings b
     JOIN users u ON b.user_id = u.id
     JOIN hotels h ON b.hotel_id = h.id
+    LEFT JOIN rooms r ON b.room_id = r.id
     WHERE b.id = '$booking_id'
 ");
+
+if (!$booking_q) {
+    error_log("Booking query failed: " . mysqli_error($conn));
+    die("Booking query failed");
+}
+
+if (mysqli_num_rows($booking_q) == 0) {
+    error_log("No booking found with ID: $booking_id");
+    die("Booking not found in database");
+}
+
 $booking = mysqli_fetch_assoc($booking_q);
+error_log("Booking found: " . print_r($booking, true));
 
-if (!$booking) {
-    error_log("Booking not found: $booking_id");
-    die("Booking not found!");
+$hotel_name = $booking['hotel_name'] ?? 'Unknown Hotel';
+$user_name = $booking['user_name'] ?? 'Customer';
+$owner_id = $booking['owner_id'] ?? 0;
+$room_title = $booking['room_title'] ?? NULL;
+
+// 6. Generate receipt ID
+$receipt_id = "REC" . date('YmdHis') . rand(100, 999);
+error_log("Generated Receipt ID: $receipt_id");
+
+// 7. Calculate amounts - User pays FULL amount
+$full_amount = $amount; // User pays full amount
+$commission = $full_amount * 0.10; // Admin keeps 10%
+$owner_amount = $full_amount - $commission; // Owner gets 90%
+
+error_log("User paid: $full_amount | Commission: $commission | Owner gets: $owner_amount");
+
+// 8. Insert into user_payments
+$insert_sql = "INSERT INTO user_payments (
+    user_id, 
+    owner_id, 
+    booking_id, 
+    hotel_name, 
+    room_title,
+    amount, 
+    commission, 
+    owner_amount, 
+    tran_id, 
+    payment_status, 
+    admin_status, 
+    receipt_id, 
+    booking_date
+) VALUES (
+    '$user_id',
+    '$owner_id',
+    '$booking_id',
+    '$hotel_name',
+    " . ($room_title ? "'$room_title'" : "NULL") . ",
+    '$full_amount',
+    '$commission',
+    '$owner_amount',
+    '$tran_id',
+    'success',
+    'pending',
+    '$receipt_id',
+    NOW()
+)";
+
+error_log("Executing SQL: $insert_sql");
+
+if (mysqli_query($conn, $insert_sql)) {
+    $payment_id = mysqli_insert_id($conn);
+    error_log("Payment inserted successfully. Payment ID: $payment_id");
+} else {
+    $error_msg = "Payment insert failed: " . mysqli_error($conn);
+    error_log($error_msg);
+    die($error_msg);
 }
 
-$owner_id = $booking['owner_id'];
-$hotel_name = $booking['hotel_name'];
-$user_name = $booking['user_name'];
-
-error_log("Found booking: Hotel=$hotel_name, Owner=$owner_id, UserName=$user_name");
-
-// Calculate commission
-$commission = $amount * 0.10;
-$owner_amount = $amount - $commission;
-$receipt_id = "RECEIPT_" . date('Ymd') . "_" . rand(1000, 9999);
-
-error_log("Commission: $commission, Owner gets: $owner_amount, Receipt: $receipt_id");
-
-// Insert payment
-$insert_sql = "INSERT INTO user_payments 
-    (user_id, owner_id, booking_id, hotel_name, amount, 
-     commission, owner_amount, tran_id, payment_status, 
-     admin_status, receipt_id) 
-    VALUES 
-    ('$user_id', '$owner_id', '$booking_id', '$hotel_name', '$amount',
-     '$commission', '$owner_amount', '$tran_id', 'success', 
-     'pending', '$receipt_id')";
-
-if (!mysqli_query($conn, $insert_sql)) {
-    error_log("Payment insert failed: " . mysqli_error($conn));
-    die("Payment processing error");
+// 9. Update booking status
+$update_booking = mysqli_query($conn, "UPDATE bookings SET status='confirmed' WHERE id='$booking_id'");
+if ($update_booking) {
+    error_log("Booking status updated to confirmed");
+} else {
+    error_log("Booking update failed: " . mysqli_error($conn));
 }
 
-$payment_id = mysqli_insert_id($conn);
-error_log("Payment inserted with ID: $payment_id");
+// 10. FIXED: Remove room status update (since rooms table doesn't have status column)
+// Instead, if you want to track room availability, use booking dates
+// Don't update rooms.status since it doesn't exist
 
-// Get booking date from bookings table
-$booking_date_q = mysqli_query($conn, "SELECT booking_date FROM bookings WHERE id='$booking_id'");
-$booking_date_row = mysqli_fetch_assoc($booking_date_q);
-$booking_date = $booking_date_row['booking_date'] ?? date('Y-m-d');
-
-// Update user_payments with booking_date
-mysqli_query($conn, "UPDATE user_payments SET booking_date='$booking_date' WHERE id='$payment_id'");
-// Update booking
-mysqli_query($conn, "UPDATE bookings SET status='confirmed' WHERE id='$booking_id'");
-
-// Insert commission
-mysqli_query($conn, "
-    INSERT INTO admin_commissions 
-    (payment_id, user_id, owner_id, amount, commission, owner_get)
-    VALUES 
-    ('$payment_id', '$user_id', '$owner_id', '$amount', '$commission', '$owner_amount')
-");
-
-// Send notifications
-$admin_q = mysqli_query($conn, "SELECT id FROM users WHERE role='admin' LIMIT 1");
-if ($admin_q && mysqli_num_rows($admin_q) > 0) {
-    $admin = mysqli_fetch_assoc($admin_q);
-    
-    sendNotification($admin['id'], 'admin',
-        "💰 Payment + Commission!\nAmount: ৳$amount\nCommission: ৳$commission\nOwner gets: ৳$owner_amount",
-        "/hotel_booking/admin/manage_payments.php"
-    );
+// Optional: If you have room availability system, update it here
+// Example: Insert into booked_dates table
+if (!empty($booking['room_id'])) {
+    // Check if you have a booked_dates or room_dates table
+    $check_table = mysqli_query($conn, "SHOW TABLES LIKE 'booked_dates'");
+    if (mysqli_num_rows($check_table) > 0) {
+        // Insert booking dates into booked_dates
+        $check_in = $booking['check_in_date'];
+        $check_out = $booking['check_out_date'];
+        
+        $date_insert = "INSERT INTO booked_dates (room_id, booking_id, date) 
+                        SELECT '{$booking['room_id']}', '$booking_id', dates.date
+                        FROM (
+                            SELECT DATE_ADD('$check_in', INTERVAL t4.i*1000 + t3.i*100 + t2.i*10 + t1.i DAY) as date
+                            FROM (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t1,
+                                 (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t2,
+                                 (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t3,
+                                 (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t4
+                            WHERE DATE_ADD('$check_in', INTERVAL t4.i*1000 + t3.i*100 + t2.i*10 + t1.i DAY) < '$check_out'
+                        ) dates";
+        
+        if (mysqli_query($conn, $date_insert)) {
+            error_log("Booking dates inserted into booked_dates");
+        } else {
+            error_log("Failed to insert booking dates: " . mysqli_error($conn));
+        }
+    }
 }
 
-sendNotification($owner_id, 'owner',
-    "✅ Payment Received!\nHotel: $hotel_name\nAmount: ৳$amount (You get: ৳$owner_amount)",
-    "/hotel_booking/owner/finance.php"
-);
+// 11. Insert commission into admin_commissions
+$commission_sql = "INSERT INTO admin_commissions (
+    payment_id, 
+    user_id, 
+    owner_id, 
+    amount, 
+    commission, 
+    owner_get, 
+    created_at
+) VALUES (
+    '$payment_id',
+    '$user_id',
+    '$owner_id',
+    '$full_amount',
+    '$commission',
+    '$owner_amount',
+    NOW()
+)";
 
-sendNotification($user_id, 'user',
-    "✅ Payment Successful!\nReceipt ID: $receipt_id\nAmount: ৳$amount",
-    "/hotel_booking/user/my_booking.php"
-);
+if (mysqli_query($conn, $commission_sql)) {
+    error_log("Commission inserted");
+} else {
+    error_log("Commission insert failed: " . mysqli_error($conn));
+}
 
-error_log("Notifications sent. Redirecting to receipt...");
-
-// IMPORTANT: Set session variables AGAIN to ensure they're preserved
+// 12. Set session
 $_SESSION['user_id'] = $user_id;
 $_SESSION['name'] = $user_name;
 $_SESSION['role'] = 'user';
 $_SESSION['payment_receipt'] = $receipt_id;
 
-error_log("Session refreshed: UserID=" . $_SESSION['user_id'] . ", Name=" . $_SESSION['name']);
+error_log("Session set: UserID=$user_id, Receipt=$receipt_id");
 
-// Redirect to receipt WITH session
+// 13. Send notification to user
+try {
+    sendNotification($user_id, 'user',
+        "✅ Payment Successful!\nReceipt ID: $receipt_id\nAmount: ৳$full_amount",
+        "/hotel_booking/user/my_booking.php"
+    );
+    error_log("User notification sent");
+} catch (Exception $e) {
+    error_log("Notification error: " . $e->getMessage());
+}
+
+// 14. Send notification to owner
+try {
+    sendNotification($owner_id, 'owner',
+        "✅ Payment Received!\nHotel: $hotel_name\nAmount: ৳$full_amount (You get: ৳$owner_amount)",
+        "/hotel_booking/owner/finance.php"
+    );
+    error_log("Owner notification sent");
+} catch (Exception $e) {
+    error_log("Owner notification error: " . $e->getMessage());
+}
+
+// 15. Send notification to admin (any admin user)
+try {
+    $admin_q = mysqli_query($conn, "SELECT id FROM users WHERE role='admin' LIMIT 1");
+    if ($admin_q && mysqli_num_rows($admin_q) > 0) {
+        $admin = mysqli_fetch_assoc($admin_q);
+        sendNotification($admin['id'], 'admin',
+            "💰 Payment + Commission!\nAmount: ৳$full_amount\nCommission: ৳$commission\nOwner gets: ৳$owner_amount",
+            "/hotel_booking/admin/manage_payments.php"
+        );
+        error_log("Admin notification sent");
+    }
+} catch (Exception $e) {
+    error_log("Admin notification error: " . $e->getMessage());
+}
+
+// 16. Redirect to receipt
 $redirect_url = "/hotel_booking/user/receipt.php?receipt_id=" . urlencode($receipt_id);
 error_log("Redirecting to: $redirect_url");
-
 header("Location: $redirect_url");
 exit();
-?>

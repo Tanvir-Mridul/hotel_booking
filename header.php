@@ -259,7 +259,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 <a class="dropdown-item" href="/hotel_booking/owner/dashboard.php">
                                     <i class="fas fa-tachometer-alt mr-2"></i> Owner Panel
                                 </a>
-                                <a class="dropdown-item" href="/hotel_booking/owner/upload_flat.php">
+                                <a class="dropdown-item" href="/hotel_booking/owner/upload_room.php">
                                     <i class="fas fa-plus-circle mr-2"></i> Upload Flat
                                 </a>
                                 <a class="dropdown-item" href="/hotel_booking/owner/manage_dates.php">

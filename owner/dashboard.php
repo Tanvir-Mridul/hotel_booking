@@ -2,8 +2,6 @@
 session_start();
 include "../db_connect.php";
 
-     include "../header.php"; 
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'owner') {
     header("Location: ../login.php");
     exit();
@@ -11,227 +9,318 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'owner') {
 
 $owner_id = $_SESSION['user_id'];
 
-/* ===== PREMIUM CHECK ===== */
+// Get hotel info
+$hotel_sql = "SELECT * FROM hotels WHERE owner_id='$owner_id' LIMIT 1";
+$hotel_result = mysqli_query($conn, $hotel_sql);
+
+if (mysqli_num_rows($hotel_result) == 0) {
+    // Create default hotel if not exists
+    $owner_name = $_SESSION['name'];
+    $default_hotel_name = $owner_name . "'s Hotel";
+    
+    $create_hotel = "INSERT INTO hotels (owner_id, hotel_name, location, status) 
+                     VALUES ('$owner_id', '$default_hotel_name', 'Dhaka', 'pending')";
+    mysqli_query($conn, $create_hotel);
+    
+    $hotel_result = mysqli_query($conn, $hotel_sql);
+}
+
+$hotel = mysqli_fetch_assoc($hotel_result);
+$hotel_id = $hotel['id'];
+
+// Get stats - FIXED: removed status condition for rooms
+$total_rooms = mysqli_fetch_assoc(mysqli_query($conn, 
+    "SELECT COUNT(*) as total FROM rooms WHERE hotel_id='$hotel_id'"
+))['total'];
+
+// FIXED: available rooms without status condition
+$available_rooms = $total_rooms; // Default to total rooms if no status column
+
+// Check if active column exists
+$check_active = mysqli_query($conn, "SHOW COLUMNS FROM rooms LIKE 'active'");
+if (mysqli_num_rows($check_active) > 0) {
+    $available_rooms = mysqli_fetch_assoc(mysqli_query($conn, 
+        "SELECT COUNT(*) as available FROM rooms 
+         WHERE hotel_id='$hotel_id' AND active = 1"
+    ))['available'];
+}
+
+// FIXED: total bookings
+$total_bookings = mysqli_fetch_assoc(mysqli_query($conn, 
+    "SELECT COUNT(*) as bookings 
+     FROM bookings 
+     WHERE hotel_id='$hotel_id'"
+))['bookings'];
+
+// Premium check
 $is_premium = false;
 $remaining_days = 0;
-
-$sub_q = mysqli_query($conn, " SELECT end_date, DATEDIFF(end_date, CURDATE()) AS remaining_days
+$sub_q = mysqli_query($conn, "SELECT end_date, DATEDIFF(end_date, CURDATE()) AS remaining_days
     FROM owner_subscriptions
-    WHERE owner_id='$owner_id'
-    AND status='approved'
-    ORDER BY id DESC
-    LIMIT 1
-");
+    WHERE owner_id='$owner_id' AND status='approved' 
+    ORDER BY id DESC LIMIT 1");
 
 if ($sub_q && mysqli_num_rows($sub_q) > 0) {
     $sub = mysqli_fetch_assoc($sub_q);
     $remaining_days = (int)$sub['remaining_days'];
-
     if ($remaining_days > 0) {
         $is_premium = true;
     }
 }
-$featured_result = mysqli_query($conn, "SELECT COUNT(*) as featured 
-    FROM hotels 
-    WHERE owner_id='$owner_id' AND status='approved'
-");
-$featured = mysqli_fetch_assoc($featured_result)['featured'];
 
-// Count stats
-$total_result = mysqli_query($conn, "SELECT COUNT(*) as total FROM hotels WHERE owner_id='$owner_id'");
-$total_row = mysqli_fetch_assoc($total_result);
-$total_flats = $total_row['total'];
-
-$approved_result = mysqli_query($conn, "SELECT COUNT(*) as approved FROM hotels WHERE owner_id='$owner_id' AND status='approved'");
-$approved_row = mysqli_fetch_assoc($approved_result);
-$approved_flats = $approved_row['approved'];
-
-$pending_result = mysqli_query($conn, "SELECT COUNT(*) as pending FROM hotels WHERE owner_id='$owner_id' AND status='pending'");
-$pending_row = mysqli_fetch_assoc($pending_result);
-$pending_flats = $pending_row['pending'];
-
-// Get all flats
-$sql = "SELECT * FROM hotels WHERE owner_id='$owner_id' ORDER BY id DESC";
-$result = mysqli_query($conn, $sql);
+include "../header.php";
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
     <title>Owner Dashboard</title>
-  
-     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Bootstrap 4 -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Your Custom CSS -->
-    <link rel="stylesheet" href="../style.css">
-    
-    
     <style>
-        body { display: flex; margin: 0; background: #f5f5f5; }
-        .main { margin-top: 60px; padding: 20px; width: 100%; }
+        body { background: #f5f5f5; }
+        .main-content { padding: 20px; margin-top: 70px; }
         
-        /* Stats Cards */
-        .stats { display: flex; gap: 15px; margin-bottom: 25px; }
-        .stat-card { 
-            flex: 1; 
-            background: white; 
-            padding: 20px; 
-            border-radius: 10px; 
-            text-align: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
-        .stat-number { font-size: 28px; font-weight: bold; }
-        .total .stat-number { color: #3498db; }
-        .approved .stat-number { color: #27ae60; }
-        .pending .stat-number { color: #f39c12; }
-        .stat-label { color: #666; font-size: 14px; margin-top: 5px; }
         
-        /* Hotel Cards */
-        .hotel-card {
+        .stat-card {
             background: white;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
         }
-        .hotel-img {
-            width: 100%;
+        
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .hotel-info {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .hotel-image {
+            width: 150px;
             height: 150px;
             object-fit: cover;
-            border-radius: 6px;
+            border-radius: 10px;
+            margin-bottom: 15px;
         }
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .approved-badge { background: #d4edda; color: #155724; }
-        .pending-badge { background: #fff3cd; color: #856404; }
-        .rejected-badge { background: #f8d7da; color: #721c24; }
         
-        .btn-sm { padding: 5px 10px; font-size: 13px; }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        
+        .btn-action {
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
 
-<!-- Include Header for Navbar -->
-    <?php include "../header.php"; ?>
+<?php include "../header.php"; ?>
 
-<!-- Main Content -->
-<div class="main">
-
-
-
-<?php if($is_premium): ?>
-<!-- ⭐ PREMIUM DASHBOARD -->
-<div class="card shadow mb-4">
-    <div class="card-body d-flex justify-content-between align-items-center">
+<div class="main-content">
+    <!-- Premium Banner -->
+    <?php if($is_premium): ?>
+    <div class="alert alert-warning d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h5 class="mb-1">⭐ Premium Owner Dashboard</h5>
-            <small class="text-muted">
-                Subscription Active | <?= $remaining_days ?> days left
-            </small>
+            <strong>⭐ Premium Owner</strong> | <?= $remaining_days ?> days remaining
         </div>
-        <span class="badge badge-warning p-2">PREMIUM</span>
+        <a href="subscription.php" class="btn btn-sm btn-outline-warning">Extend</a>
     </div>
-</div>
-
-<div class="stats">
-    
-<div class="stat-card total">
-            <div class="stat-number"><?php echo $total_flats; ?></div>
-            <div class="stat-label">Total Flats</div>
+    <?php else: ?>
+    <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <strong>Free Plan</strong> - Upgrade for more features
         </div>
-    <div class="stat-card approved">
-        <div class="stat-number"><?= $approved_flats ?></div>
-        <div class="stat-label">Approved Hotels</div>
+        <a href="subscription.php" class="btn btn-sm btn-warning">Upgrade Now</a>
     </div>
-        <div class="stat-card pending">
-            <div class="stat-number"><?php echo $pending_flats; ?></div>
-            <div class="stat-label">Pending</div>
-        </div>
+    <?php endif; ?>
     
-
-    <div class="stat-card pending">
-        <div class="stat-number"><?= $remaining_days ?></div>
-        <div class="stat-label">Days Left</div>
-    </div>
-</div>
-<?php else: ?>
-
-<!-- 🚫 FREE OWNER VIEW -->
-<div class="alert alert-warning d-flex justify-content-between align-items-center">
-    <div>
-        <strong>Premium Features Locked</strong><br>
-        Feature your hotels & get analytics
-    </div>
-    <a href="subscription.php" class="btn btn-warning btn-sm">
-        Upgrade Now
-    </a>
-</div>
-
-<?php endif; ?>
-   
-    
-    <!-- Add New Button -->
-   <?php if ($is_premium || $total_flats < 1): ?>
-    <a href="upload_flat.php" class="btn btn-primary mb-3">
-        + Add New Flat
-    </a>
-   
-<?php else: ?>
-    <button class="btn btn-secondary mb-3" disabled>
-        Flat limit reached
-    </button>
-<?php endif; ?>
-    
-    <!-- Flats List -->
-    <div class="row">
-        <?php if(mysqli_num_rows($result) > 0): ?>
-            <?php while($row = mysqli_fetch_assoc($result)): ?>
-            <div class="col-md-4">
-                <div class="hotel-card">
-                    <img src="../uploads/<?php echo $row['image']; ?>" 
-                         class="hotel-img"
-                         onerror="this.src='../assets/img/default.jpg'">
-                    
-                    <h5 class="mt-2 mb-1"><?php echo $row['hotel_name']; ?></h5>
-                    <p class="text-muted mb-1">📍 <?php echo $row['location']; ?></p>
-                    <p class="mb-1"><strong>৳ <?php echo $row['price']; ?> / night</strong></p>
-                    
-                    <?php
-                    $badge_class = 'pending-badge';
-                    if($row['status'] == 'approved') $badge_class = 'approved-badge';
-                    if($row['status'] == 'rejected') $badge_class = 'rejected-badge';
-                    ?>
-                    <span class="status-badge <?php echo $badge_class; ?>">
-                        <?php echo $row['status']; ?>
-                    </span>
-                    
-                    <div class="mt-2">
-                        <a href="edit_flat.php?id=<?php echo $row['id']; ?>" class="btn btn-sm btn-warning">Edit</a>
-                        <a href="delete_flat.php?id=<?php echo $row['id']; ?>" 
-                           class="btn btn-sm btn-danger"
-                           onclick="return confirm('Delete this flat?')">Delete</a>
+    <!-- Hotel Info -->
+    <div class="hotel-info">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center">
+                <?php if(!empty($hotel['image'])): ?>
+                    <img src="../uploads/<?php echo $hotel['image']; ?>" class="hotel-image">
+                <?php else: ?>
+                    <div class="hotel-image bg-light d-flex align-items-center justify-content-center">
+                        <i class="fas fa-hotel fa-3x text-muted"></i>
                     </div>
+                <?php endif; ?>
+            </div>
+            <div class="col-md-9">
+                <h3><?php echo $hotel['hotel_name']; ?></h3>
+                <p class="text-muted mb-2">
+                    <i class="fas fa-map-marker-alt"></i> <?php echo $hotel['location']; ?>
+                </p>
+                <?php if(!empty($hotel['description'])): ?>
+                    <p><?php echo substr($hotel['description'], 0, 150); ?>...</p>
+                <?php endif; ?>
+                <div class="action-buttons">
+                    <a href="hotel_settings.php" class="btn-action btn-primary">
+                        <i class="fas fa-cog"></i> Hotel Settings
+                    </a>
+                    <a href="upload_room.php" class="btn-action btn-success">
+                        <i class="fas fa-plus-circle"></i> Add Room
+                    </a>
+                    <a href="manage_rooms.php" class="btn-action btn-info">
+                        <i class="fas fa-bed"></i> Manage Rooms
+                    </a>
+                    <a href="/hotel_booking/owner/manage_bookings.php" class="btn-action btn-warning">
+                        <i class="fas fa-calendar-alt"></i> manage_bookings
+                    </a>
+                    <a href="/hotel_booking/owner/finance.php" class="btn-action btn-primary">
+                        <i class="fas fa-calendar-alt"></i> Finsnce
+                    </a>
+                    <a href="manage_dates.php" class="btn-action btn-success">
+                        <i class="fas fa-plus-circle"></i> Manage Date
+                    </a>
                 </div>
             </div>
-            <?php endwhile; ?>
+        </div>
+    </div>
+    
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon text-primary">
+                <i class="fas fa-bed"></i>
+            </div>
+            <div class="stat-number"><?php echo $total_rooms; ?></div>
+            <div class="stat-label">Total Rooms</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon text-success">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-number"><?php echo $available_rooms; ?></div>
+            <div class="stat-label">Available Rooms</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon text-warning">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stat-number"><?php echo $total_bookings; ?></div>
+            <div class="stat-label">Total Bookings</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon text-info">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="stat-number">
+                <?php echo $is_premium ? 'Premium' : 'Free'; ?>
+            </div>
+            <div class="stat-label">Plan</div>
+        </div>
+    </div>
+    
+    <!-- Recent Rooms -->
+    <div class="hotel-info">
+        <h5 class="mb-3">Recent Rooms</h5>
+        <?php
+        $rooms_sql = "SELECT * FROM rooms WHERE hotel_id='$hotel_id' ORDER BY id DESC LIMIT 5";
+        $rooms_result = mysqli_query($conn, $rooms_sql);
+        
+        if(mysqli_num_rows($rooms_result) > 0): ?>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Room</th>
+                            <th>Capacity</th>
+                            <th>Price/Night</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while($room = mysqli_fetch_assoc($rooms_result)): 
+                            // FIXED: Determine status
+                            $status = 'available';
+                            if (isset($room['active']) && $room['active'] == 0) {
+                                $status = 'inactive';
+                            }
+                            
+                            $badge_class = 'badge-success';
+                            if ($status == 'inactive') $badge_class = 'badge-secondary';
+                        ?>
+                        <tr>
+                            <td>
+                                <strong><?php echo $room['room_title']; ?></strong>
+                                <br>
+                                <small class="text-muted">
+                                    <?php echo substr($room['description'], 0, 50); ?>...
+                                </small>
+                            </td>
+                            <td><?php echo $room['capacity']; ?> Persons</td>
+                            <td class="text-success">৳ <?php echo $room['price_per_night']; ?></td>
+                            <td>
+                                <span class="badge <?php echo $badge_class; ?>">
+                                    <?php echo ucfirst($status); ?>
+                                </span>
+                            </td>
+                            <td>
+                                <a href="edit_room.php?id=<?php echo $room['id']; ?>" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endwhile; ?>
+                    </tbody>
+                </table>
+            </div>
+            <a href="manage_rooms.php" class="btn btn-outline-primary btn-sm">
+                View All Rooms
+            </a>
         <?php else: ?>
-            <div class="col-12">
-                <div class="alert alert-info">
-                    No flats added yet. <a href="upload_flat.php">Add your first flat</a>
-                </div>
+            <div class="text-center py-4">
+                <i class="fas fa-bed fa-3x text-muted mb-3"></i>
+                <h5>No Rooms Added Yet</h5>
+                <p class="text-muted">Start by adding your first room</p>
+                <a href="upload_room.php" class="btn btn-success">
+                    <i class="fas fa-plus-circle"></i> Add First Room
+                </a>
             </div>
         <?php endif; ?>
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
