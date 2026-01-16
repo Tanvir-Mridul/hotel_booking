@@ -232,7 +232,7 @@ $result = mysqli_query($conn, $sql);
                             <?php if ($booking['status'] !== 'cancelled'): ?>
                                 
                                 <!-- PAYMENT BUTTON FOR PENDING STATUS -->
-                                <?php if($booking['status'] == 'pending'): ?>
+                                <?php if($booking['status'] == 'initiated'): ?>
                                     <a href="payment_checkout.php?booking_id=<?php echo $booking['id']; ?>" 
                                        class="btn btn-success btn-sm btn-action">
                                        <i class="fas fa-credit-card"></i> Pay Now

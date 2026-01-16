@@ -23,7 +23,9 @@ $sql = "SELECT b.*,
         FROM bookings b
         LEFT JOIN rooms r ON b.room_id = r.id
         LEFT JOIN hotels h ON b.hotel_id = h.id
-        WHERE b.id = ? AND b.user_id = ? AND b.status = 'pending'";
+        WHERE b.id = ? 
+        AND b.user_id = ? 
+        AND b.status = 'initiated'";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ii", $booking_id, $user_id);
 $stmt->execute();

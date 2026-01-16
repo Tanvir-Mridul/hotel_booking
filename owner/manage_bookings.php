@@ -78,8 +78,9 @@ $bookings_sql = "SELECT
 FROM bookings b
 JOIN users u ON b.user_id = u.id
 LEFT JOIN rooms r ON b.room_id = r.id
-WHERE b.hotel_id = '$hotel_id' 
-   OR (b.room_id IS NOT NULL AND r.hotel_id = '$hotel_id')
+WHERE (b.hotel_id = '$hotel_id' 
+   OR (b.room_id IS NOT NULL AND r.hotel_id = '$hotel_id'))
+AND b.status != 'initiated'
 ORDER BY 
     CASE 
         WHEN b.status = 'pending' THEN 1
@@ -134,6 +135,7 @@ $bookings_result = mysqli_query($conn, $bookings_sql);
         .contact-info { font-size: 13px; }
         .action-buttons { min-width: 120px; }
     </style>
+    <?php include "../header.php"; ?>
 </head>
 <body>
 

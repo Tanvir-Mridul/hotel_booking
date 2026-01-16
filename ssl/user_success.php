@@ -125,7 +125,11 @@ if (mysqli_query($conn, $insert_sql)) {
 }
 
 // 9. Update booking status
-$update_booking = mysqli_query($conn, "UPDATE bookings SET status='confirmed' WHERE id='$booking_id'");
+$update_booking = mysqli_query($conn, "
+    UPDATE bookings 
+    SET status='confirmed', payment_status='success'
+    WHERE id='$booking_id'
+");
 if ($update_booking) {
     error_log("Booking status updated to confirmed");
 } else {

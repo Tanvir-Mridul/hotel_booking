@@ -157,9 +157,9 @@ $total_price = $nights * $room['price_per_night'] * $rooms_count;
 
 // Insert booking
 $insert = $conn->prepare("INSERT INTO bookings 
-    (user_id, hotel_id, room_id, room_title, hotel_name, location, price, 
-     check_in_date, check_out_date, rooms_count, guests, status) 
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')");
+(user_id, hotel_id, room_id, room_title, hotel_name, location, price, 
+ check_in_date, check_out_date, rooms_count, guests, status, payment_status, created_at) 
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'initiated', 'pending', NOW())");
 
 $insert->bind_param(
     "iiisssdssii",
@@ -179,18 +179,8 @@ $insert->bind_param(
 if ($insert->execute()) {
     $booking_id = $insert->insert_id;
     
-    // Send notification to owner
-    include "../includes/notification_helper.php";
-    sendNotification($room['owner_id'], 'owner',
-        "📅 New booking request for \"{$room['room_title']}\" from " . $_SESSION['name'],
-        "/hotel_booking/owner/manage_bookings.php"
-    );
-    
-    // Also notify user
-    sendNotification($user_id, 'user',
-        "✅ Booking request sent for \"{$room['room_title']}\". Please complete payment.",
-        "/hotel_booking/user/my_booking.php"
-    );
+ 
+
     
     // Redirect to payment
     header("Location: ../user/payment_checkout.php?booking_id=" . $booking_id);

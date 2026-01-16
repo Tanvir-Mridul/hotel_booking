@@ -1,6 +1,8 @@
-//subscription.php//
+
 <?php
+ob_start();
 session_start();
+//subscription.php//
 include "../db_connect.php";
 include "../header.php";
 
@@ -21,7 +23,7 @@ $has_active = mysqli_num_rows($check_result) > 0;
 // Get all packages
 $packages = mysqli_query($conn,"SELECT * FROM subscriptions");
 
-
+ob_end_flush();
 
 ?>
 
