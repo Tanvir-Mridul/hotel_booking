@@ -33,6 +33,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             Manage Subscription</a>
         <a href="manage_packages.php" class="<?= $current_page == 'manage_packages.php' ? 'active' : '' ?>">📦 Subscription
             Packages</a>
+            <a href="reports.php" class="<?= $current_page == 'manage_packages.php' ? 'active' : '' ?>">📦 Reports
+            Packages</a>
+            
 
 
 
