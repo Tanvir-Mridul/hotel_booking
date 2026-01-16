@@ -24,11 +24,12 @@ if (mysqli_num_rows($result) == 0) {
 
 $hotel = mysqli_fetch_assoc($result);
 
-// 3️⃣ Hotel এর rooms আনা - FIXED: removed r.status condition
+// 3️⃣ Hotel এর ACTIVE rooms আনা - শুধু active room show হবে
 $rooms_sql = "SELECT r.*, 
-              (SELECT image_url FROM room_images WHERE room_id = r.id AND is_primary = 1 LIMIT 1) as primary_image
+              (SELECT image_url FROM room_images WHERE room_id = r.id LIMIT 1) as primary_image
               FROM rooms r 
-              WHERE r.hotel_id = '$hotel_id'
+              WHERE r.hotel_id = '$hotel_id' 
+              AND r.active = 1  -- শুধু active room show হবে
               ORDER BY r.price_per_night ASC";
 $rooms_result = mysqli_query($conn, $rooms_sql);
 ?>
@@ -65,7 +66,6 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
         }
         .status-available { background: #28a745; color: white; }
         .status-booked { background: #ffc107; color: #212529; }
-        .status-maintenance { background: #dc3545; color: white; }
     </style>
 </head>
 <body>
@@ -82,9 +82,9 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
                      onerror="this.src='../assets/img/default.jpg'">
             </div>
             <div class="col-md-8">
-                <h2><?php echo $hotel['hotel_name']; ?></h2>
+                <h2><?php echo htmlspecialchars($hotel['hotel_name']); ?></h2>
                 <p class="text-muted mb-3">
-                    <i class="fas fa-map-marker-alt"></i> <?php echo $hotel['location']; ?>
+                    <i class="fas fa-map-marker-alt"></i> <?php echo htmlspecialchars($hotel['location']); ?>
                 </p>
                 
                 <?php if(!empty($hotel['description'])): ?>
@@ -100,10 +100,11 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
                             <div style="font-size: 24px; color: #3498db;">
                                 <i class="fas fa-bed"></i>
                             </div>
+                            <?php $active_rooms = mysqli_num_rows($rooms_result); ?>
                             <h5 class="mt-2">
-                                <?php echo mysqli_num_rows($rooms_result); ?> Rooms
+                                <?php echo $active_rooms; ?> Rooms
                             </h5>
-                            <small>Total Rooms</small>
+                            <small>Available Rooms</small>
                         </div>
                     </div>
                     
@@ -135,47 +136,31 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
     <h3 class="mb-4">Available Rooms</h3>
     
     <?php 
-    // Count available rooms
+    // Reset result pointer
     mysqli_data_seek($rooms_result, 0);
-    $total_rooms = mysqli_num_rows($rooms_result);
-    $available_rooms = 0;
-    $rooms_array = [];
-    
-    while($room = mysqli_fetch_assoc($rooms_result)) {
-        $rooms_array[] = $room;
-        // Check if room is available (you can add your own logic here)
-        $available_rooms++;
-    }
+    $total_active_rooms = mysqli_num_rows($rooms_result);
     ?>
     
-    <?php if($total_rooms > 0): ?>
+    <?php if($total_active_rooms > 0): ?>
         <p class="text-muted mb-4">
-            Showing <?php echo $available_rooms; ?> of <?php echo $total_rooms; ?> room(s)
+            Showing <?php echo $total_active_rooms; ?> available room(s)
         </p>
         
         <div class="row">
-            <?php foreach($rooms_array as $room): ?>
+            <?php while($room = mysqli_fetch_assoc($rooms_result)): ?>
             <div class="col-md-4 mb-4">
                 <div class="room-card">
                     <!-- Room Image with Status Badge -->
                     <div style="position: relative;">
-                        <?php 
-                        // Determine room status (you can implement your own logic)
-                        $room_status = 'available'; // Default status
-                        $status_class = 'status-available';
-                        
-                        // Add your own availability check logic here
-                        ?>
-                        
-                        <div class="room-status-badge <?php echo $status_class; ?>">
-                            <?php echo ucfirst($room_status); ?>
+                        <div class="room-status-badge status-available">
+                            Available
                         </div>
                         
                         <?php if(!empty($room['primary_image'])): ?>
                             <img src="../uploads/rooms/<?php echo $room['primary_image']; ?>" 
                                  class="room-image" 
-                                 alt="<?php echo $room['room_title']; ?>"
-                                 onerror="this.src='../assets/img/default.jpg'">
+                                 alt="<?php echo htmlspecialchars($room['room_title']); ?>"
+                                 onerror="this.src='../assets/img/default-room.jpg'; this.style.padding='40px'; this.style.background='#f8f9fa';">
                         <?php else: ?>
                             <div class="room-image bg-light d-flex align-items-center justify-content-center">
                                 <i class="fas fa-bed fa-3x text-muted"></i>
@@ -190,20 +175,22 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
                     
                     <!-- Room Details -->
                     <div class="p-3">
-                        <h5><?php echo $room['room_title']; ?></h5>
+                        <h5><?php echo htmlspecialchars($room['room_title']); ?></h5>
                         
                         <div class="mb-2">
                             <span class="capacity-badge">
                                 <i class="fas fa-users"></i> <?php echo $room['capacity']; ?> Persons
                             </span>
-                            <span class="badge badge-light ml-2">
-                                <i class="fas fa-door-closed"></i> <?php echo $room['room_count']; ?> Room(s)
-                            </span>
+                            <?php if($room['room_count'] > 1): ?>
+                                <span class="badge badge-light ml-2">
+                                    <i class="fas fa-door-closed"></i> <?php echo $room['room_count']; ?> Rooms
+                                </span>
+                            <?php endif; ?>
                         </div>
                         
                         <?php if(!empty($room['description'])): ?>
                         <p class="text-muted mb-3" style="font-size: 14px;">
-                            <?php echo substr(htmlspecialchars($room['description']), 0, 80); ?>...
+                            <?php echo substr(htmlspecialchars($room['description']), 0, 100); ?>...
                         </p>
                         <?php endif; ?>
                         
@@ -217,29 +204,27 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
                         
                         <!-- Action Buttons -->
                         <div class="mt-3">
-                            <a href="room_details.php?room_id=<?php echo $room['id']; ?>" 
+                            <a href="room_details.php?room_id=<?php echo $room['id']; ?>&hotel_id=<?php echo $hotel_id; ?>" 
                                class="btn btn-primary btn-block">
-                                <i class="fas fa-eye"></i> View Details
+                                <i class="fas fa-eye"></i> View Details & Book
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
-            <?php endforeach; ?>
+            <?php endwhile; ?>
         </div>
     <?php else: ?>
         <div class="no-rooms">
             <i class="fas fa-bed fa-4x text-muted mb-3"></i>
             <h4>No Rooms Available</h4>
-            <p class="text-muted">This hotel has no rooms listed yet.</p>
+            <p class="text-muted">Currently all rooms are inactive or under maintenance.</p>
             <a href="../hotel/hotel_list.php" class="btn btn-primary">
                 <i class="fas fa-arrow-left"></i> Browse Other Hotels
             </a>
         </div>
     <?php endif; ?>
 </div>
-
-
 
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>

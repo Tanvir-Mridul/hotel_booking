@@ -1,4 +1,3 @@
-//update_room.php//
 <?php
 session_start();
 include "../db_connect.php";
@@ -36,20 +35,20 @@ $room_count_sql = "SELECT COUNT(*) as total FROM rooms WHERE hotel_id='$hotel_id
 $room_count_result = mysqli_query($conn, $room_count_sql);
 $room_count = mysqli_fetch_assoc($room_count_result)['total'];
 
-// Free plan limit: 3 rooms
-if (!$is_premium && $room_count >= 3) {
+// Free plan limit: 1 rooms
+if (!$is_premium && $room_count >= 1) {
     echo '
     <div class="container mt-5">
         <div class="alert alert-warning">
             <h4><i class="fas fa-exclamation-triangle"></i> Room Limit Reached</h4>
-            <p>Free plan allows maximum 3 rooms. Please upgrade to premium for unlimited rooms.</p>
+            <p>Free plan allows maximum 1 rooms. Please upgrade to premium for unlimited rooms.</p>
             <a href="subscription.php" class="btn btn-warning mt-2">
                 <i class="fas fa-crown"></i> Upgrade to Premium
             </a>
             <a href="dashboard.php" class="btn btn-secondary mt-2 ml-2">Back to Dashboard</a>
         </div>
     </div>';
-    include "../footer.php";
+   
     exit();
 }
 
@@ -60,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $room_title = mysqli_real_escape_string($conn, $_POST['room_title']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $capacity = intval($_POST['capacity']);
-    $room_count = intval($_POST['room_count']);
+    $room_count_input = intval($_POST['room_count']);
     $price_per_night = floatval($_POST['price_per_night']);
     
     // Validate
@@ -71,11 +70,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         mysqli_begin_transaction($conn);
         
         try {
-            // 1. Insert room
+            // 1. Insert room - REMOVED 'status' column
             $room_sql = "INSERT INTO rooms (hotel_id, room_title, description, 
-                          capacity, room_count, price_per_night, status) 
+                          capacity, room_count, price_per_night, active) 
                          VALUES ('$hotel_id', '$room_title', '$description', 
-                                 '$capacity', '$room_count', '$price_per_night', 'available')";
+                                 '$capacity', '$room_count_input', '$price_per_night', '1')";
             
             if (!mysqli_query($conn, $room_sql)) {
                 throw new Exception("Room insert failed: " . mysqli_error($conn));
@@ -169,6 +168,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .image-preview { width: 100px; height: 80px; object-fit: cover; border-radius: 5px; border: 2px solid #ddd; }
         .remove-image { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 20px; height: 20px; text-align: center; cursor: pointer; }
         .image-item { position: relative; }
+        .required-field::after { content: " *"; color: red; }
     </style>
 </head>
 <body>
@@ -200,8 +200,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <!-- Plan Info -->
     <div class="alert alert-info mb-4">
         <i class="fas fa-info-circle"></i> 
-        <strong>Plan: <?php echo $is_premium ? 'Premium (Unlimited Rooms)' : 'Free (Max 3 Rooms)'; ?></strong> | 
-        Current Rooms: <?php echo $room_count; ?> of <?php echo $is_premium ? 'Unlimited' : '3'; ?>
+        <strong>Plan: <?php echo $is_premium ? 'Premium (Unlimited Rooms)' : 'Free (Max 1 Rooms)'; ?></strong> | 
+        Current Rooms: <?php echo $room_count; ?> of <?php echo $is_premium ? 'Unlimited' : '1'; ?>
         <?php if(!$is_premium): ?>
             <br><small>Upgrade to premium for unlimited rooms and more features.</small>
         <?php endif; ?>
@@ -212,7 +212,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <div class="row">
                 <div class="col-md-8">
                     <div class="form-group">
-                        <label>Room Title *</label>
+                        <label class="required-field">Room Title</label>
                         <input type="text" name="room_title" class="form-control" 
                                value="<?php echo $_POST['room_title'] ?? ''; ?>" 
                                placeholder="e.g., Deluxe Double Room, Executive Suite, Family Room" required>
@@ -229,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Capacity (Persons) *</label>
+                                <label class="required-field">Capacity (Persons)</label>
                                 <input type="number" name="capacity" class="form-control" 
                                        value="<?php echo $_POST['capacity'] ?? '2'; ?>" 
                                        min="1" max="10" required>
@@ -239,7 +239,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Number of Rooms *</label>
+                                <label class="required-field">Number of Rooms</label>
                                 <input type="number" name="room_count" class="form-control" 
                                        value="<?php echo $_POST['room_count'] ?? '1'; ?>" 
                                        min="1" max="50" required>
@@ -249,7 +249,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         
                         <div class="col-md-4">
                             <div class="form-group">
-                                <label>Price per Night (৳) *</label>
+                                <label class="required-field">Price per Night (৳)</label>
                                 <input type="number" name="price_per_night" class="form-control" 
                                        value="<?php echo $_POST['price_per_night'] ?? ''; ?>" 
                                        min="500" step="100" required>
@@ -261,7 +261,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label>Room Images *</label>
+                        <label class="required-field">Room Images</label>
                         <div class="custom-file">
                             <input type="file" name="images[]" class="custom-file-input" 
                                    id="imageInput" multiple accept="image/*" required 
@@ -294,16 +294,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <a href="dashboard.php" class="btn btn-secondary">Cancel</a>
                     </div>
                     
-                    <div class="text-right">
-                        <small class="text-muted">
-                            <i class="fas fa-clock"></i> Room will be visible after admin approval
-                        </small>
-                    </div>
+                    
                 </div>
             </div>
         </form>
     </div>
-</div>
+    
+   
 
 <script>
 let selectedImages = [];
@@ -371,6 +368,23 @@ document.getElementById('imageInput').addEventListener('change', function(e) {
     
     const label = this.nextElementSibling;
     label.textContent = fileName;
+});
+
+// Form validation
+document.getElementById('uploadForm').addEventListener('submit', function(e) {
+    const price = document.querySelector('input[name="price_per_night"]').value;
+    if (price < 500) {
+        alert('Minimum price per night is ৳500');
+        e.preventDefault();
+        return false;
+    }
+    
+    const images = document.getElementById('imageInput').files;
+    if (images.length === 0) {
+        alert('Please upload at least one room image');
+        e.preventDefault();
+        return false;
+    }
 });
 </script>
 

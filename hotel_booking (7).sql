@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 15, 2026 at 07:56 PM
+-- Generation Time: Jan 16, 2026 at 03:31 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,11 +43,22 @@ CREATE TABLE `admin_commissions` (
 --
 
 INSERT INTO `admin_commissions` (`id`, `payment_id`, `user_id`, `owner_id`, `amount`, `commission`, `owner_get`, `created_at`) VALUES
-(12, 18, 11, 9, 4000.00, 400.00, 3600.00, '2026-01-13 21:48:22'),
-(13, 19, 1, 0, 2000.00, 200.00, 1800.00, '2026-01-15 17:13:46'),
-(14, 20, 1, 0, 2000.00, 200.00, 1800.00, '2026-01-15 17:17:26'),
-(15, 21, 1, 0, 1000.00, 100.00, 900.00, '2026-01-15 17:19:50'),
-(16, 22, 1, 0, 1000.00, 100.00, 900.00, '2026-01-15 17:20:51');
+(25, 32, 1, 15, 5500.00, 550.00, 4950.00, '2026-01-16 14:22:57');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `blocked_dates`
+--
+
+CREATE TABLE `blocked_dates` (
+  `id` int(11) NOT NULL,
+  `hotel_id` int(11) NOT NULL,
+  `room_id` int(11) DEFAULT 0,
+  `blocked_date` date NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -79,10 +90,7 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`id`, `user_id`, `owner_id`, `hotel_name`, `location`, `price`, `rooms_count`, `guests`, `booking_date`, `check_in_date`, `check_out_date`, `status`, `hotel_id`, `room_title`, `room_id`, `rooms_booked`) VALUES
-(86, 1, 0, 'Adil Hotel', 'Cox\\\'s Bazar', 2000, 1, 2, NULL, '2026-01-16', '2026-01-17', 'confirmed', 20, 'Dulex Room', 1, 1),
-(87, 1, 0, 'Adil Hotel', 'Cox\\\'s Bazar', 2000, 1, 2, NULL, '2026-01-15', '2026-01-16', 'confirmed', 20, 'Dulex Room', 1, 1),
-(88, 1, 0, 'Adil Hotel', 'Cox\\\'s Bazar', 1000, 1, 1, NULL, '2026-01-23', '2026-01-24', 'confirmed', 20, 'gvsgs', 3, 1),
-(89, 1, 0, 'Adil Hotel', 'Cox\\\'s Bazar', 1000, 1, 1, NULL, '2026-01-17', '2026-01-18', 'cancelled', 20, 'singlke', 2, 1);
+(103, 1, 0, 'West Park Inn', 'Dhaka', 5500, 1, 2, NULL, '2026-01-16', '2026-01-17', 'confirmed', 21, 'Deluxe Double Room', 9, 1);
 
 -- --------------------------------------------------------
 
@@ -100,26 +108,6 @@ CREATE TABLE `chat_messages` (
   `is_read` tinyint(4) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `chat_messages`
---
-
-INSERT INTO `chat_messages` (`id`, `sender_id`, `sender_role`, `receiver_id`, `receiver_role`, `message`, `is_read`, `created_at`) VALUES
-(1, 9, 'owner', 1, 'user', 'hi', 1, '2026-01-11 17:30:11'),
-(2, 9, 'owner', 1, 'user', 'hi', 1, '2026-01-11 17:33:55'),
-(3, 10, 'user', 9, 'owner', 'hi', 1, '2026-01-11 17:40:34'),
-(4, 9, 'owner', 10, 'user', 'hi', 1, '2026-01-11 17:40:50'),
-(5, 10, 'user', 9, 'owner', 'ami apanr hotel nichi', 1, '2026-01-11 17:41:19'),
-(6, 10, 'user', 9, 'owner', 'ki', 1, '2026-01-11 17:48:00'),
-(7, 9, 'owner', 10, 'user', 'hi', 1, '2026-01-11 17:50:32'),
-(8, 10, 'user', 9, 'owner', 'hi', 1, '2026-01-11 17:55:43'),
-(9, 9, 'owner', 10, 'user', 'hi', 1, '2026-01-11 18:32:33'),
-(10, 10, 'user', 9, 'owner', 'hello', 1, '2026-01-11 18:32:57'),
-(11, 10, 'user', 9, 'owner', 'hello', 1, '2026-01-11 18:33:08'),
-(12, 10, 'user', 9, 'owner', 'hi', 1, '2026-01-11 18:34:08'),
-(13, 9, 'owner', 10, 'user', 'hello', 1, '2026-01-11 18:38:31'),
-(14, 10, 'user', 9, 'owner', 'hi', 1, '2026-01-11 18:38:51');
 
 -- --------------------------------------------------------
 
@@ -150,7 +138,8 @@ CREATE TABLE `hotels` (
 --
 
 INSERT INTO `hotels` (`id`, `hotel_name`, `title`, `location`, `price`, `description`, `image`, `status`, `created_at`, `owner_id`, `rooms`, `capacity`, `booked_dates`, `capacity_per_room`, `total_rooms`) VALUES
-(20, 'Adil Hotel', NULL, 'Cox\\\'s Bazar', NULL, '', '1768494204_hotel_14.jpg', 'approved', '2026-01-15 16:21:16', 14, 1, 2, '[\"2026-01-20\"]', 2, 1);
+(20, 'Sayeman Beach Resort', NULL, 'Cox\'s Bazar', NULL, 'After fifty years of glorious past, Sayeman Beach Resort revives its famed legacy of comfort, elegance and impeccable service. An eminent landmark constructed in 1964, this legendary first private hotel of Cox’s Bazar is reborn, infusing modern sophistication into this vintage-chic, iconic hotel at a new beachfront location of Marine Drive, Kolatoli, Cox’s Bazar.With its richly historic past, the Hotel Sayeman now fully becomes a part of the exciting and rapidly changing present with the addition of a modern, elegant luxury ocean front hotel. The beauty of Cox’s Bazar – the climate, the panoramic ocean views, the sandy beaches, plus the rich culture and history along with the warmth of the sun – is what attracts people here. And the Sayeman Beach Resort provides you exactly just that with extraordinary comfort, luxury and services.', '1768567688_hotel_14.png', 'approved', '2026-01-15 16:21:16', 14, 1, 2, '[\"2026-01-20\"]', 2, 1),
+(21, 'West Park Inn', NULL, 'Dhaka', NULL, 'The West Park Inn, a new 4 star standard hotel in Dhaka situated at the central business hub and diplomatic zone of Banani. Very near to the International Airport. West Park Inn is committed to deliver utmost hospitality services and facilities to meet the needs of corporate and business travelers', '1768571295_hotel_15.png', 'approved', '2026-01-16 13:46:59', 15, 1, 2, '[]', 2, 1);
 
 -- --------------------------------------------------------
 
@@ -196,44 +185,11 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`id`, `receiver_id`, `receiver_role`, `message`, `link`, `status`, `created_at`) VALUES
-(116, 5, 'admin', '💳 New subscription request from Robiul - 1 Month (৳1000.00)', '/hotel_booking/admin/manage_subscriptions.php', 'unread', '2026-01-13 21:46:48'),
-(117, 9, 'owner', '✅ Subscription payment successful! Waiting for admin approval.', '/hotel_booking/owner/subscription.php', 'unread', '2026-01-13 21:46:48'),
-(118, 9, 'owner', '✅ Your subscription has been approved! Premium features activated.', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-13 21:47:03'),
-(119, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳4000.00\nCommission: ৳400\nOwner gets: ৳3600', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-13 21:48:22'),
-(120, 9, 'owner', '✅ Payment Received!\nHotel: Hotel Le meridian\nAmount: ৳4000.00 (You get: ৳3600)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-13 21:48:22'),
-(121, 11, 'user', '✅ Payment Successful!\nReceipt ID: RECEIPT_20260113_1541\nAmount: ৳4000.00', '/hotel_booking/user/my_booking.php', 'read', '2026-01-13 21:48:22'),
-(122, 5, 'admin', '💳 New subscription request from Tanvir - 3 Months (৳2500.00)', '/hotel_booking/admin/manage_subscriptions.php', 'unread', '2026-01-13 21:53:55'),
-(123, 2, 'owner', '✅ Subscription payment successful! Waiting for admin approval.', '/hotel_booking/owner/subscription.php', 'unread', '2026-01-13 21:53:55'),
-(124, 2, 'owner', '✅ Your subscription (৳2500) has been approved! Premium features activated.', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-13 21:58:04'),
-(125, 2, 'owner', '⚠️ Your subscription (৳2500) has been deactivated. Your hotels are now offline.', '/hotel_booking/owner/subscription.php', 'unread', '2026-01-13 21:58:39'),
-(126, 2, 'owner', '✅ Your subscription (৳2500) has been reactivated. Hotels are now online.', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-13 21:58:43'),
-(127, 5, 'admin', '🏨 New flat uploaded by Tanvir - \"Hotel Inani Long Bay\" at Cox\'\'s bazar (৳4000)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-15 13:52:19'),
-(128, 2, 'owner', '📤 Your flat \"Hotel Inani Long Bay\" has been submitted for admin approval', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-15 13:52:19'),
-(129, 2, 'owner', '✅ Your hotel \"Hotel Inani Long Bay\" has been approved and is now live!', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-15 13:52:34'),
-(130, 5, 'admin', '🏨 New flat uploaded by Tanvir - \"Tanvir\" at Cox\'\'s bazar (৳1000)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-15 13:54:29'),
-(131, 2, 'owner', '📤 Your flat \"Tanvir\" has been submitted for admin approval', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-15 13:54:29'),
-(132, 2, 'owner', '✅ Your hotel \"Tanvir\" has been approved and is now live!', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-15 13:54:42'),
-(133, 5, 'admin', '🏨 New flat uploaded by Tanvir - \"RIfa Ho\" at Cox\'\'s bazar (৳1000)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-15 14:02:16'),
-(134, 2, 'owner', '📤 Your flat \"RIfa Ho\" has been submitted for admin approval', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-15 14:02:16'),
-(135, 14, 'owner', '✅ Your hotel \"Adil Hotel\" has been approved and is now live!', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-15 16:22:44'),
-(136, 5, 'admin', '🏨 New room uploaded by Adil - \"Dulex Room\" (৳2000/night)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-15 16:24:50'),
-(137, 5, 'admin', '🏨 New room uploaded by Adil - \"singlke\" (৳1000/night)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-15 16:26:37'),
-(138, 5, 'admin', '🏨 New room uploaded by Adil - \"gvsgs\" (৳1000/night)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-15 16:27:09'),
-(139, 14, 'owner', '📅 New booking request for \"Dulex Room\" from rahat', '/hotel_booking/owner/manage_bookings.php', 'unread', '2026-01-15 17:01:42'),
-(140, 1, 'user', '✅ Booking request sent for \"Dulex Room\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 17:01:42'),
-(141, 14, 'owner', '📅 New booking request for \"Dulex Room\" from rahat', '/hotel_booking/owner/manage_bookings.php', 'read', '2026-01-15 17:13:35'),
-(142, 1, 'user', '✅ Booking request sent for \"Dulex Room\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 17:13:35'),
-(143, 5, 'admin', '💰 Payment + Commission!\nRoom: Dulex Room\nAmount: ৳2000.00\nCommission: ৳200\nOwner gets: ৳1800', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-15 17:13:46'),
-(144, 0, 'owner', '✅ Payment Received!\nRoom: Dulex Room\nAmount: ৳2000.00 (You get: ৳1800)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-15 17:13:46'),
-(145, 1, 'user', '✅ Payment Successful!\nReceipt ID: RECEIPT_20260115_7946\nRoom: Dulex Room\nAmount: ৳2000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 17:13:46'),
-(146, 1, 'user', '✅ Payment Successful!\nReceipt: RECEIPT_20260115181725612\nAmount: ৳2000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 17:17:26'),
-(147, 14, 'owner', '📅 New booking request for \"gvsgs\" from rahat', '/hotel_booking/owner/manage_bookings.php', 'unread', '2026-01-15 17:19:41'),
-(148, 1, 'user', '✅ Booking request sent for \"gvsgs\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 17:19:41'),
-(149, 1, 'user', '✅ Payment Successful!\nReceipt: RECEIPT_20260115181950584\nAmount: ৳1000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 17:19:50'),
-(150, 14, 'owner', '📅 New booking request for \"singlke\" from rahat', '/hotel_booking/owner/manage_bookings.php', 'unread', '2026-01-15 17:20:42'),
-(151, 1, 'user', '✅ Booking request sent for \"singlke\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 17:20:42'),
-(152, 1, 'user', '✅ Payment Successful!\nReceipt: REC20260115182051998\nAmount: ৳1000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 17:20:51'),
-(153, 1, 'user', 'Booking status updated for \'singlke\' to: Cancelled', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-15 18:27:42');
+(230, 15, 'owner', '📅 New booking request for \"Deluxe Double Room\" from rahat', '/hotel_booking/owner/manage_bookings.php', 'unread', '2026-01-16 14:22:47'),
+(231, 1, 'user', '✅ Booking request sent for \"Deluxe Double Room\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 14:22:47'),
+(232, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116152257956\nAmount: ৳5500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 14:22:57'),
+(233, 15, 'owner', '✅ Payment Received!\nHotel: West Park Inn\nAmount: ৳5500.00 (You get: ৳4950)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 14:22:57'),
+(234, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳5500.00\nCommission: ৳550\nOwner gets: ৳4950', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 14:22:57');
 
 -- --------------------------------------------------------
 
@@ -272,8 +228,7 @@ CREATE TABLE `owner_subscriptions` (
 --
 
 INSERT INTO `owner_subscriptions` (`id`, `owner_id`, `hotel_id`, `package_id`, `tran_id`, `amount`, `start_date`, `end_date`, `status`, `payment_status`) VALUES
-(23, 9, NULL, 1, 'SUB_6966bd3ed70d4', 1000.00, '2026-01-14 00:00:00', '2026-02-13', 'approved', 'pending'),
-(24, 2, NULL, 2, 'SUB_6966beebf10be', 2500.00, '2026-01-14 00:00:00', '2026-04-14', 'approved', 'pending');
+(25, 14, NULL, 1, 'SUB_6969421073ee7', 1000.00, '2026-01-16 00:00:00', '2026-02-15', 'approved', 'pending');
 
 -- --------------------------------------------------------
 
@@ -319,16 +274,34 @@ CREATE TABLE `rooms` (
   `capacity` int(11) DEFAULT 2,
   `room_count` int(11) DEFAULT 1,
   `price_per_night` decimal(10,2) NOT NULL,
-  `status` enum('available','booked','maintenance') DEFAULT 'available',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `is_active` tinyint(1) DEFAULT 1,
+  `active` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `rooms`
 --
 
-INSERT INTO `rooms` (`id`, `hotel_id`, `room_title`, `description`, `capacity`, `room_count`, `price_per_night`, `status`, `created_at`) VALUES
-(5, 20, 'fghgfh', 'fhfh', 2, 1, 1000.00, 'available', '2026-01-15 18:23:36');
+INSERT INTO `rooms` (`id`, `hotel_id`, `room_title`, `description`, `capacity`, `room_count`, `price_per_night`, `created_at`, `is_active`, `active`) VALUES
+(7, 20, 'Panorama Ocean Suite Sea View with Balcony', 'Adult Occupancy: 4\r\nComplementary Child Occupancy: 2\r\nOn Demand Extra Bed: 1\r\nMaximum Number of Guests Allowed: 5', 5, 2, 6500.00, '2026-01-16 13:07:06', 1, 1),
+(8, 20, 'Super Deluxe Family Room (City or Hill View)', 'Super Deluxe Family Room (City or Hill View) .Amazing Room', 3, 1, 4000.00, '2026-01-16 13:10:19', 1, 1),
+(9, 21, 'Deluxe Double Room', 'Deluxe Double Room', 3, 1, 5500.00, '2026-01-16 14:04:14', 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `room_dates`
+--
+
+CREATE TABLE `room_dates` (
+  `id` int(11) NOT NULL,
+  `room_id` int(11) NOT NULL,
+  `date` date NOT NULL,
+  `status` enum('available','booked','blocked') DEFAULT 'available',
+  `booking_id` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -343,6 +316,16 @@ CREATE TABLE `room_images` (
   `is_primary` tinyint(1) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `room_images`
+--
+
+INSERT INTO `room_images` (`id`, `room_id`, `image_url`, `is_primary`, `created_at`) VALUES
+(7, 7, '1768568826_room_7_0.jpg', 1, '2026-01-16 13:07:06'),
+(8, 8, '1768569019_room_8_0.png', 1, '2026-01-16 13:10:19'),
+(9, 9, '1768572254_room_9_0.jpg', 1, '2026-01-16 14:04:14'),
+(10, 9, '1768572254_room_9_1.jpg', 0, '2026-01-16 14:04:14');
 
 -- --------------------------------------------------------
 
@@ -388,15 +371,10 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password`, `role`, `created_at`) VALUES
 (1, 'rahat', 'rahat@gmail.com', NULL, '$2y$10$/b7ZF55mWU.wnAHUBjZSiObScptkteT/VkCcKybKIZz9PSNDyjZqS', 'user', '2025-12-28 12:31:00'),
-(2, 'Tanvir', 'owner@gmail.com', NULL, '$2y$10$fuu4L82juLKCmxjhj5td0OfOdhq4vp8cz.szT4UKRTbvNytqVoZ7.', 'owner', '2025-12-28 12:31:00'),
 (5, 'admin', 'admin@gmail.com', NULL, 'password', 'admin', '2025-12-28 12:31:00'),
-(6, '', 'owner1@gmail.com', NULL, '$2y$10$o5owVGOgCYQ3xz8NkSThxuMyDHw/ly789Fvcg47N0Hh1yTGP68B7K', 'owner', '2025-12-28 12:31:00'),
-(7, '', 'owner2@gmail.com', NULL, '$2y$10$nvg1310hmcB.NkoI.soFI.tcQC9t6sYTTMg9mv3ai8N.qL6veXWii', 'owner', '2025-12-28 19:08:41'),
-(8, 'Arman', 'arman@gmail.com', NULL, '$2y$10$ZVJlC9wFCFHXmwGxmq.o.OwKs32ohQHW1BsRXrmKCw56ANNZLwTi.', 'owner', '2025-12-31 07:30:20'),
-(9, 'Robiul', 'robiul@gmail.com', NULL, '$2y$10$w2my96a4eULq9uEs9DaqJuV9SeGqs6bET8xMK86wRiNeObQSjaS1e', 'owner', '2026-01-03 09:15:23'),
-(10, 'Jidni', 'jidni@gmail.com', NULL, '$2y$10$VUciNquBe8TW30TqN9cX9eleoKa1XHvHEc0UhA8cAkbvl5cBWEI3O', 'user', '2026-01-11 17:35:24'),
 (11, 'User', 'user@gmail.com', NULL, '$2y$10$GYBDForb8fgm1qMfFKZyBeQM.WgUd5Lqvh7kzDS8NEtydac7POnTa', 'user', '2026-01-13 21:12:24'),
-(14, 'Adil', 'Adil@gmail.com', NULL, '$2y$10$AdB2O/iGkf1m4uB04jg4aeowKqC1dp7VROAUxlrd2OV.G9obZ1lx.', 'owner', '2026-01-15 16:21:16');
+(14, 'Adil', 'Adil@gmail.com', NULL, '$2y$10$AdB2O/iGkf1m4uB04jg4aeowKqC1dp7VROAUxlrd2OV.G9obZ1lx.', 'owner', '2026-01-15 16:21:16'),
+(15, 'Tanvir', 'tanvir@gmail.com', NULL, '$2y$10$Ych/1xJlymU2meXvmdE09OsSpshw/azaINhrLijD6KFIqifMA5oHG', 'owner', '2026-01-16 13:46:59');
 
 -- --------------------------------------------------------
 
@@ -429,11 +407,7 @@ CREATE TABLE `user_payments` (
 --
 
 INSERT INTO `user_payments` (`id`, `user_id`, `owner_id`, `booking_id`, `hotel_name`, `room_title`, `amount`, `tran_id`, `payment_status`, `admin_status`, `created_at`, `owner_paid_status`, `owner_paid_date`, `commission`, `owner_amount`, `receipt_id`, `booking_date`) VALUES
-(18, 11, 9, 85, 'Hotel Le meridian', NULL, 4000.00, 'USERPAY_6966bd9e5499f', 'success', 'pending', '2026-01-13 21:48:22', 'paid', '2026-01-15 18:48:18', 400.00, 3600.00, 'RECEIPT_20260113_1541', '2026-01-16'),
-(19, 1, 0, 87, 'Adil Hotel', 'Dulex Room', 2000.00, 'USERPAY_6969204283868', 'success', 'pending', '2026-01-15 17:13:46', 'pending', NULL, 200.00, 1800.00, 'RECEIPT_20260115_7946', '2026-01-15'),
-(20, 1, 0, 86, 'Adil Hotel', NULL, 2000.00, 'USERPAY_6969211e6848d', 'success', 'pending', '2026-01-15 17:17:25', 'pending', NULL, 200.00, 1800.00, 'RECEIPT_20260115181725612', '2026-01-15'),
-(21, 1, 0, 88, 'Adil Hotel', NULL, 1000.00, 'USERPAY_696921af5b321', 'success', 'pending', '2026-01-15 17:19:50', 'pending', NULL, 100.00, 900.00, 'RECEIPT_20260115181950584', '2026-01-15'),
-(22, 1, 0, 89, 'Adil Hotel', NULL, 1000.00, 'USERPAY_696921ebcb99f', 'success', 'pending', '2026-01-15 17:20:51', 'pending', NULL, 100.00, 900.00, 'REC20260115182051998', '2026-01-15');
+(32, 1, 15, 103, 'West Park Inn', 'Deluxe Double Room', 5500.00, 'USERPAY_696a49b9a574e', 'success', 'pending', '2026-01-16 14:22:57', 'pending', NULL, 550.00, 4950.00, 'REC20260116152257956', '2026-01-16');
 
 --
 -- Indexes for dumped tables
@@ -444,6 +418,13 @@ INSERT INTO `user_payments` (`id`, `user_id`, `owner_id`, `booking_id`, `hotel_n
 --
 ALTER TABLE `admin_commissions`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `blocked_dates`
+--
+ALTER TABLE `blocked_dates`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_blocked_dates` (`hotel_id`,`room_id`,`blocked_date`);
 
 --
 -- Indexes for table `bookings`
@@ -504,6 +485,14 @@ ALTER TABLE `rooms`
   ADD KEY `hotel_id` (`hotel_id`);
 
 --
+-- Indexes for table `room_dates`
+--
+ALTER TABLE `room_dates`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_room_date` (`room_id`,`date`),
+  ADD KEY `booking_id` (`booking_id`);
+
+--
 -- Indexes for table `room_images`
 --
 ALTER TABLE `room_images`
@@ -537,13 +526,19 @@ ALTER TABLE `user_payments`
 -- AUTO_INCREMENT for table `admin_commissions`
 --
 ALTER TABLE `admin_commissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT for table `blocked_dates`
+--
+ALTER TABLE `blocked_dates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
 
 --
 -- AUTO_INCREMENT for table `chat_messages`
@@ -555,19 +550,19 @@ ALTER TABLE `chat_messages`
 -- AUTO_INCREMENT for table `hotels`
 --
 ALTER TABLE `hotels`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=154;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=235;
 
 --
 -- AUTO_INCREMENT for table `owner_subscriptions`
 --
 ALTER TABLE `owner_subscriptions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `owner_withdrawals`
@@ -585,13 +580,19 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT for table `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+
+--
+-- AUTO_INCREMENT for table `room_dates`
+--
+ALTER TABLE `room_dates`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `room_images`
 --
 ALTER TABLE `room_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `subscriptions`
@@ -603,17 +604,23 @@ ALTER TABLE `subscriptions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `user_payments`
 --
 ALTER TABLE `user_payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `blocked_dates`
+--
+ALTER TABLE `blocked_dates`
+  ADD CONSTRAINT `blocked_dates_ibfk_1` FOREIGN KEY (`hotel_id`) REFERENCES `hotels` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `owner_subscriptions`
@@ -626,6 +633,13 @@ ALTER TABLE `owner_subscriptions`
 --
 ALTER TABLE `rooms`
   ADD CONSTRAINT `rooms_ibfk_1` FOREIGN KEY (`hotel_id`) REFERENCES `hotels` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `room_dates`
+--
+ALTER TABLE `room_dates`
+  ADD CONSTRAINT `room_dates_ibfk_1` FOREIGN KEY (`room_id`) REFERENCES `rooms` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `room_dates_ibfk_2` FOREIGN KEY (`booking_id`) REFERENCES `bookings` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `room_images`

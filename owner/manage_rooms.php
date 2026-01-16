@@ -27,10 +27,22 @@ if (isset($_POST['add_room'])) {
     $room_count = intval($_POST['room_count'] ?? 1);
     $is_active = isset($_POST['is_active']) ? 1 : 0;
     
-    $insert_sql = "INSERT INTO rooms 
-        (hotel_id, room_title, description, capacity, price_per_night, room_count, is_active) 
-        VALUES 
-        ('$hotel_id', '$room_title', '$description', '$capacity', '$price_per_night', '$room_count', '$is_active')";
+    // Check if using 'active' or 'is_active' column
+    $col_check = mysqli_query($conn, "SHOW COLUMNS FROM rooms LIKE 'active'");
+    
+    if (mysqli_num_rows($col_check) > 0) {
+        // If 'active' column exists
+        $insert_sql = "INSERT INTO rooms 
+            (hotel_id, room_title, description, capacity, price_per_night, room_count, active) 
+            VALUES 
+            ('$hotel_id', '$room_title', '$description', '$capacity', '$price_per_night', '$room_count', '$is_active')";
+    } else {
+        // If 'is_active' column exists
+        $insert_sql = "INSERT INTO rooms 
+            (hotel_id, room_title, description, capacity, price_per_night, room_count, is_active) 
+            VALUES 
+            ('$hotel_id', '$room_title', '$description', '$capacity', '$price_per_night', '$room_count', '$is_active')";
+    }
     
     if (mysqli_query($conn, $insert_sql)) {
         header("Location: manage_rooms.php?msg=added");
@@ -44,16 +56,35 @@ if (isset($_POST['add_room'])) {
 if (isset($_GET['toggle_active'])) {
     $room_id = intval($_GET['room_id']);
     
-    $verify_sql = "SELECT id, is_active FROM rooms WHERE id='$room_id' AND hotel_id='$hotel_id'";
-    $verify_result = mysqli_query($conn, $verify_sql);
+    // Check which column exists
+    $col_check = mysqli_query($conn, "SHOW COLUMNS FROM rooms LIKE 'active'");
     
-    if (mysqli_num_rows($verify_result) > 0) {
-        $room_data = mysqli_fetch_assoc($verify_result);
-        $new_status = $room_data['is_active'] ? 0 : 1;
+    if (mysqli_num_rows($col_check) > 0) {
+        // Use 'active' column
+        $verify_sql = "SELECT id, active FROM rooms WHERE id='$room_id' AND hotel_id='$hotel_id'";
+        $verify_result = mysqli_query($conn, $verify_sql);
         
-        mysqli_query($conn, "UPDATE rooms SET is_active='$new_status' WHERE id='$room_id'");
-        header("Location: manage_rooms.php?msg=updated");
-        exit();
+        if (mysqli_num_rows($verify_result) > 0) {
+            $room_data = mysqli_fetch_assoc($verify_result);
+            $new_status = $room_data['active'] ? 0 : 1;
+            
+            mysqli_query($conn, "UPDATE rooms SET active='$new_status' WHERE id='$room_id'");
+            header("Location: manage_rooms.php?msg=updated");
+            exit();
+        }
+    } else {
+        // Use 'is_active' column
+        $verify_sql = "SELECT id, is_active FROM rooms WHERE id='$room_id' AND hotel_id='$hotel_id'";
+        $verify_result = mysqli_query($conn, $verify_sql);
+        
+        if (mysqli_num_rows($verify_result) > 0) {
+            $room_data = mysqli_fetch_assoc($verify_result);
+            $new_status = $room_data['is_active'] ? 0 : 1;
+            
+            mysqli_query($conn, "UPDATE rooms SET is_active='$new_status' WHERE id='$room_id'");
+            header("Location: manage_rooms.php?msg=updated");
+            exit();
+        }
     }
 }
 
@@ -81,9 +112,9 @@ if (isset($_GET['delete_room'])) {
     }
 }
 
-// Get all rooms with their primary image
+// Get all rooms with their primary image - FIXED QUERY
 $rooms_sql = "SELECT r.*, 
-              (SELECT image_url FROM room_images WHERE room_id = r.id AND is_primary = 1 LIMIT 1) as primary_image
+              (SELECT image_url FROM room_images WHERE room_id = r.id LIMIT 1) as primary_image
               FROM rooms r 
               WHERE r.hotel_id='$hotel_id' 
               ORDER BY r.id DESC";
@@ -109,7 +140,10 @@ include "../header.php";
             overflow: hidden;
             border-left: 5px solid #28a745;
         }
-        .room-card.inactive { border-left-color: #dc3545; opacity: 0.7; }
+        .room-card.inactive { 
+            border-left-color: #dc3545; 
+            opacity: 0.7; 
+        }
         
         .room-image-container {
             height: 180px;
@@ -161,6 +195,13 @@ include "../header.php";
             font-size: 12px;
             margin: 2px;
         }
+        .add-room-form {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
@@ -175,8 +216,8 @@ include "../header.php";
             <div>
                 <span class="badge badge-light">Hotel: <?php echo $hotel['hotel_name']; ?></span>
                 <a href="dashboard.php" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
             </div>
         </div>
         
@@ -196,11 +237,20 @@ include "../header.php";
             </div>
         <?php endif; ?>
         
+       
         <!-- Rooms List -->
+        <h4 class="mt-5 mb-3">Your Rooms</h4>
         <div class="row">
             <?php if(mysqli_num_rows($rooms_result) > 0): ?>
                 <?php while($room = mysqli_fetch_assoc($rooms_result)): 
-                    $is_active = $room['is_active'];
+                    // Determine active status based on column name
+                    $is_active = 0;
+                    if (isset($room['active'])) {
+                        $is_active = $room['active'];
+                    } elseif (isset($room['is_active'])) {
+                        $is_active = $room['is_active'];
+                    }
+                    
                     $card_class = $is_active ? 'room-card' : 'room-card inactive';
                 ?>
                     <div class="col-md-4 mb-3">
@@ -210,7 +260,7 @@ include "../header.php";
                                 <?php if(!empty($room['primary_image'])): ?>
                                     <img src="../uploads/rooms/<?php echo $room['primary_image']; ?>" 
                                          class="room-image" alt="<?php echo $room['room_title']; ?>"
-                                         onerror="this.src='../assets/img/default.jpg'">
+                                         onerror="this.onerror=null; this.src='../assets/img/default-room.jpg'; this.style.padding='40px';">
                                 <?php else: ?>
                                     <i class="fas fa-bed fa-4x text-muted"></i>
                                 <?php endif; ?>
@@ -219,7 +269,7 @@ include "../header.php";
                             <!-- Room Details -->
                             <div class="room-details">
                                 <div class="room-title">
-                                    <?php echo $room['room_title']; ?>
+                                    <?php echo htmlspecialchars($room['room_title']); ?>
                                     <span class="badge <?php echo $is_active ? 'badge-success' : 'badge-danger'; ?> float-right">
                                         <?php echo $is_active ? 'Active' : 'Inactive'; ?>
                                     </span>
@@ -227,7 +277,7 @@ include "../header.php";
                                 
                                 <?php if(!empty($room['description'])): ?>
                                     <div class="room-description">
-                                        <?php echo substr($room['description'], 0, 80); ?>
+                                        <?php echo htmlspecialchars(substr($room['description'], 0, 80)); ?>
                                         <?php if(strlen($room['description']) > 80): ?>...<?php endif; ?>
                                     </div>
                                 <?php endif; ?>
@@ -251,7 +301,8 @@ include "../header.php";
                                 <div class="action-bar">
                                     <!-- Active/Inactive Toggle -->
                                     <a href="?toggle_active=1&room_id=<?php echo $room['id']; ?>" 
-                                       class="btn btn-sm <?php echo $is_active ? 'btn-warning' : 'btn-success'; ?>">
+                                       class="btn btn-sm <?php echo $is_active ? 'btn-warning' : 'btn-success'; ?>"
+                                       onclick="return confirm('<?php echo $is_active ? "Deactivate" : "Activate"; ?> this room?')">
                                         <?php echo $is_active ? 'Deactivate' : 'Activate'; ?>
                                     </a>
                                     
@@ -259,12 +310,12 @@ include "../header.php";
                                     <div>
                                         <a href="edit_room.php?id=<?php echo $room['id']; ?>" 
                                            class="btn btn-sm btn-outline-primary btn-action">
-                                           <i class="fas fa-edit"></i>
+                                           <i class="fas fa-edit"></i> Edit
                                         </a>
                                         <a href="?delete_room=<?php echo $room['id']; ?>" 
                                            class="btn btn-sm btn-outline-danger btn-action"
-                                           onclick="return confirm('Delete this room?')">
-                                           <i class="fas fa-trash"></i>
+                                           onclick="return confirm('Delete this room? This action cannot be undone.')">
+                                           <i class="fas fa-trash"></i> Delete
                                         </a>
                                     </div>
                                 </div>
@@ -283,59 +334,13 @@ include "../header.php";
             <?php endif; ?>
         </div>
         
-        <!-- Simple Add Room Form -->
-        <div class="card mt-4">
-            <div class="card-body">
-                <h5 class="card-title"><i class="fas fa-plus-circle"></i> Add New Room</h5>
-                <form method="POST" action="">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Room Title *</label>
-                                <input type="text" name="room_title" class="form-control" required>
-                            </div>
-                        </div>
-                        <div class="col-md-3">
-                            <div class="form-group">
-                                <label>Price per Night (৳) *</label>
-                                <input type="number" name="price_per_night" class="form-control" step="0.01" required>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Capacity *</label>
-                                <input type="number" name="capacity" class="form-control" min="1" required>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Number of Rooms *</label>
-                                <input type="number" name="room_count" class="form-control" min="1" value="1" required>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label>Status</label>
-                                <div class="custom-control custom-switch mt-2">
-                                    <input type="checkbox" name="is_active" class="custom-control-input" id="is_active" checked>
-                                    <label class="custom-control-label" for="is_active">Active</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Description</label>
-                                <textarea name="description" class="form-control" rows="2"></textarea>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <button type="submit" name="add_room" class="btn btn-primary">
-                                <i class="fas fa-save"></i> Add Room
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
+        <!-- Important: Filter rooms on your website -->
+        <div class="alert alert-info mt-4">
+            <h5><i class="fas fa-info-circle"></i> Important Note</h5>
+            <p class="mb-0">
+                When users search for rooms on your website, make sure your website code filters by active status.
+                Add this condition to your room search query: <code>WHERE active = 1</code>
+            </p>
         </div>
     </div>
 </div>

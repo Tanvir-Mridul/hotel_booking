@@ -1,4 +1,3 @@
-//manage_booking.php//
 <?php
 session_start();
 include "../db_connect.php";
@@ -38,9 +37,23 @@ if (isset($_GET['update_booking_status'])) {
         // Update booking status
         mysqli_query($conn, "UPDATE bookings SET status='$status' WHERE id='$booking_id'");
         
-        // Update room status if cancelled
+        // Update room active status if cancelled
         if ($status == 'cancelled' && !empty($booking['room_id'])) {
-            mysqli_query($conn, "UPDATE rooms SET status='available' WHERE id='{$booking['room_id']}'");
+            // Check what column exists in rooms table
+            $check_col_sql = "SHOW COLUMNS FROM rooms LIKE 'active'";
+            $col_result = mysqli_query($conn, $check_col_sql);
+            
+            if (mysqli_num_rows($col_result) > 0) {
+                // If 'active' column exists
+                mysqli_query($conn, "UPDATE rooms SET active='1' WHERE id='{$booking['room_id']}'");
+            } else {
+                // Check for 'availability' column
+                $check_avail_sql = "SHOW COLUMNS FROM rooms LIKE 'availability'";
+                $avail_result = mysqli_query($conn, $check_avail_sql);
+                if (mysqli_num_rows($avail_result) > 0) {
+                    mysqli_query($conn, "UPDATE rooms SET availability='available' WHERE id='{$booking['room_id']}'");
+                }
+            }
         }
         
         // Send notification to user
@@ -54,13 +67,14 @@ if (isset($_GET['update_booking_status'])) {
     }
 }
 
-// Get all bookings for this hotel - FIXED: removed phone column
+// Get all bookings for this hotel
 $bookings_sql = "SELECT 
     b.*, 
     u.name as user_name,
     u.email as user_email,
     r.room_title,
-    r.capacity
+    r.capacity,
+    r.active as room_active
 FROM bookings b
 JOIN users u ON b.user_id = u.id
 LEFT JOIN rooms r ON b.room_id = r.id
@@ -76,8 +90,6 @@ ORDER BY
     b.id DESC";
 
 $bookings_result = mysqli_query($conn, $bookings_sql);
-
-include "../header.php";
 ?>
 
 <!DOCTYPE html>
@@ -96,9 +108,16 @@ include "../header.php";
             margin-bottom: 20px;
             padding: 20px;
         }
-        .badge-pending { background: #f39c12; }
-        .badge-confirmed { background: #2ecc71; }
-        .badge-cancelled { background: #e74c3c; }
+        .badge-pending { background: #f39c12; color: white; }
+        .badge-confirmed { background: #2ecc71; color: white; }
+        .badge-cancelled { background: #e74c3c; color: white; }
+        .room-status-badge {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        .room-active { background: #d4edda; color: #155724; }
+        .room-inactive { background: #f8d7da; color: #721c24; }
         .user-avatar {
             width: 50px;
             height: 50px;
@@ -113,6 +132,7 @@ include "../header.php";
         }
         .filter-buttons .btn { margin-right: 5px; margin-bottom: 5px; }
         .contact-info { font-size: 13px; }
+        .action-buttons { min-width: 120px; }
     </style>
 </head>
 <body>
@@ -128,8 +148,8 @@ include "../header.php";
                 <span class="badge badge-light">Hotel: <?php echo $hotel['hotel_name']; ?></span>
             </div>
             <a href="dashboard.php" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Dashboard
-        </a>
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
         </div>
         
         <?php if(isset($_GET['msg'])): ?>
@@ -164,6 +184,14 @@ include "../header.php";
                     
                     // Determine badge class
                     $badge_class = 'badge-' . $booking['status'];
+                    
+                    // Room status
+                    $room_status_badge = '';
+                    if(isset($booking['room_active'])) {
+                        $room_status_badge = $booking['room_active'] == 1 
+                            ? '<span class="room-status-badge room-active">Available</span>' 
+                            : '<span class="room-status-badge room-inactive">Booked</span>';
+                    }
             ?>
                     <div class="col-md-6">
                         <div class="booking-card">
@@ -176,7 +204,7 @@ include "../header.php";
                                     <h6 class="mb-1"><?php echo $booking['user_name']; ?></h6>
                                     <small class="text-muted">
                                         <?php 
-                                        // FIXED: Check if booking_date is not null
+                                        // Check if booking_date is not null
                                         if (!empty($booking['booking_date'])) {
                                             echo date('d M', strtotime($booking['booking_date']));
                                         } else {
@@ -192,13 +220,14 @@ include "../header.php";
                                         <?php if(!empty($booking['room_title'])): ?>
                                             <i class="fas fa-bed text-primary"></i> 
                                             <?php echo $booking['room_title']; ?>
+                                            <?php echo $room_status_badge; ?>
                                         <?php else: ?>
                                             <i class="fas fa-hotel text-primary"></i> 
-                                            <?php echo $booking['hotel_name']; ?>
+                                            <?php echo $hotel['hotel_name']; ?>
                                         <?php endif; ?>
                                     </h6>
                                     
-                                    <!-- Date Section - FIXED for NULL dates -->
+                                    <!-- Date Section -->
                                     <?php 
                                     $check_in = $booking['check_in_date'] ?? '';
                                     $check_out = $booking['check_out_date'] ?? '';
@@ -212,7 +241,7 @@ include "../header.php";
                                         </p>
                                         
                                         <?php 
-                                        // Calculate nights only if dates are valid
+                                        // Calculate nights
                                         $nights = 1;
                                         if ($check_in && $check_out && $check_in != '0000-00-00' && $check_out != '0000-00-00') {
                                             $time1 = strtotime($check_in);
@@ -238,8 +267,8 @@ include "../header.php";
                                             <?php echo $booking['guests']; ?> Guest(s)
                                             <?php if(!empty($booking['rooms_count']) && $booking['rooms_count'] > 1): ?>
                                                 | <?php echo $booking['rooms_count']; ?> Room(s)
-                                            </p>
-                                        <?php endif; ?>
+                                            <?php endif; ?>
+                                        </p>
                                     <?php endif; ?>
                                     
                                     <!-- Contact Info -->
@@ -269,16 +298,19 @@ include "../header.php";
                                     <div class="btn-group-vertical w-100">
                                         <?php if($booking['status'] == 'pending'): ?>
                                             <a href="?update_booking_status=1&booking_id=<?php echo $booking['id']; ?>&status=confirmed"
-                                               class="btn btn-sm btn-success mb-1">
+                                               class="btn btn-sm btn-success mb-1"
+                                               onclick="return confirm('Confirm this booking?')">
                                                <i class="fas fa-check"></i> Confirm
                                             </a>
                                             <a href="?update_booking_status=1&booking_id=<?php echo $booking['id']; ?>&status=cancelled"
-                                               class="btn btn-sm btn-danger mb-1">
+                                               class="btn btn-sm btn-danger mb-1"
+                                               onclick="return confirm('Reject this booking?')">
                                                <i class="fas fa-times"></i> Reject
                                             </a>
                                         <?php elseif($booking['status'] == 'confirmed'): ?>
                                             <a href="?update_booking_status=1&booking_id=<?php echo $booking['id']; ?>&status=cancelled"
-                                               class="btn btn-sm btn-danger mb-1">
+                                               class="btn btn-sm btn-danger mb-1"
+                                               onclick="return confirm('Cancel this booking?')">
                                                <i class="fas fa-times"></i> Cancel
                                             </a>
                                         <?php endif; ?>

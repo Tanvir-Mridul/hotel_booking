@@ -107,6 +107,7 @@ $result = mysqli_query($conn, $sql);
         
         .btn-action { margin: 2px; font-size: 13px; }
     </style>
+    <?php include "../header.php"; ?>
 </head>
 
 <body>

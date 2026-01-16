@@ -206,6 +206,9 @@ include "../header.php";
                     <a href="manage_dates.php" class="btn-action btn-success">
                         <i class="fas fa-plus-circle"></i> Manage Date
                     </a>
+                    <a href="reports.php" class="btn-action btn-success">
+                        <i class="fas fa-plus-circle"></i> Reports
+                    </a>
                 </div>
             </div>
         </div>

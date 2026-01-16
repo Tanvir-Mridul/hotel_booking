@@ -20,11 +20,12 @@ $room_sql = "SELECT r.*, h.hotel_name, h.location, h.description as hotel_desc,
 $room_result = mysqli_query($conn, $room_sql);
 
 if (mysqli_num_rows($room_result) == 0) {
+    
     echo "<div class='container mt-5'>
             <div class='alert alert-warning'>Room not available!</div>
             <a href='hotel_list.php' class='btn btn-primary'>Browse Hotels</a>
           </div>";
-    include "../footer.php";
+    
     exit();
 }
 
