@@ -25,23 +25,55 @@ if (mysqli_num_rows($room_result) == 0) {
 $room = mysqli_fetch_assoc($room_result);
 
 // Update room
+// Update room
 if (isset($_POST['update_room'])) {
+
     $room_title = mysqli_real_escape_string($conn, $_POST['room_title']);
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $capacity = intval($_POST['capacity']);
     $price_per_night = floatval($_POST['price_per_night']);
     $room_count = intval($_POST['room_count']);
-    $status = mysqli_real_escape_string($conn, $_POST['status']);
-    
+
+    // IMAGE UPDATE PART
+    $image_sql = "";
+   // ===== IMAGE UPDATE (room_images table) =====
+if (!empty($_FILES['new_image']['name'])) {
+
+    $allowed = ['jpg', 'jpeg', 'png'];
+    $ext = strtolower(pathinfo($_FILES['new_image']['name'], PATHINFO_EXTENSION));
+
+    if (in_array($ext, $allowed)) {
+
+        $new_image_name = time() . "_room_" . $room_id . "." . $ext;
+        $upload_path = "../uploads/rooms/" . $new_image_name;
+
+        if (!is_dir("../uploads/rooms")) {
+            mkdir("../uploads/rooms", 0755, true);
+        }
+
+        if (move_uploaded_file($_FILES['new_image']['tmp_name'], $upload_path)) {
+
+            // পুরোনো primary image remove
+            mysqli_query($conn, "DELETE FROM room_images WHERE room_id='$room_id'");
+
+            // নতুন image insert as primary
+            mysqli_query($conn, "
+                INSERT INTO room_images (room_id, image_url, is_primary)
+                VALUES ('$room_id', '$new_image_name', 1)
+            ");
+        }
+    }
+}
+
     $update_sql = "UPDATE rooms SET 
         room_title='$room_title',
         description='$description',
         capacity='$capacity',
         price_per_night='$price_per_night',
-        room_count='$room_count',
-        status='$status'
-        WHERE id='$room_id'";
-    
+        room_count='$room_count'
+        $image_sql
+    WHERE id='$room_id'";
+
     if (mysqli_query($conn, $update_sql)) {
         header("Location: manage_rooms.php?msg=updated");
         exit();
@@ -49,6 +81,7 @@ if (isset($_POST['update_room'])) {
         $error = "Update failed: " . mysqli_error($conn);
     }
 }
+
 
 include "../header.php";
 ?>
@@ -80,7 +113,8 @@ include "../header.php";
             <div class="alert alert-danger"><?php echo $error; ?></div>
         <?php endif; ?>
         
-        <form method="POST" action="">
+        <form method="POST" action="" enctype="multipart/form-data">
+
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group">
@@ -114,14 +148,7 @@ include "../header.php";
                                value="<?php echo $room['room_count']; ?>" min="1" required>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Status *</label>
-                        <select name="status" class="form-control" required>
-                            <option value="available" <?php echo $room['status'] == 'available' ? 'selected' : ''; ?>>Available</option>
-                            <option value="booked" <?php echo $room['status'] == 'booked' ? 'selected' : ''; ?>>Booked</option>
-                            <option value="maintenance" <?php echo $room['status'] == 'maintenance' ? 'selected' : ''; ?>>Maintenance</option>
-                        </select>
-                    </div>
+                  
                     
                     <div class="form-group">
                         <label>Current Image</label><br>

@@ -8,28 +8,41 @@ $location = "";
 $min_price = "";
 $max_price = "";
 
-$where = "WHERE status='approved'";
+$where = "WHERE h.status = 'approved' AND r.active = 1";
+
 
 /* 🔍 LOCATION SEARCH */
 if (!empty($_GET['location'])) {
     $location = mysqli_real_escape_string($conn, $_GET['location']);
-    $where .= " AND (location LIKE '%$location%' 
-                OR hotel_name LIKE '%$location%')";
+    $where .= " AND (h.location LIKE '%$location%' 
+                OR h.hotel_name LIKE '%$location%')";
 }
 
 /* 💰 MIN PRICE */
 if (!empty($_GET['min_price'])) {
     $min_price = (int)$_GET['min_price'];
-    $where .= " AND price >= $min_price";
+    $where .= " AND r.price_per_night >= $min_price";
 }
+
 
 /* 💰 MAX PRICE */
 if (!empty($_GET['max_price'])) {
     $max_price = (int)$_GET['max_price'];
-    $where .= " AND price <= $max_price";
+    $where .= " AND r.price_per_night <= $max_price";
 }
 
-$sql = "SELECT * FROM hotels $where ORDER BY id DESC";
+
+$sql = "
+SELECT 
+    h.*,
+    MIN(r.price_per_night) AS lowest_price
+FROM hotels h
+LEFT JOIN rooms r ON h.id = r.hotel_id
+$where
+GROUP BY h.id
+ORDER BY h.id DESC
+";
+
 $result = mysqli_query($conn, $sql);
 ?>
 
@@ -85,9 +98,16 @@ $result = mysqli_query($conn, $sql);
                                 📍 <?php echo $row['location']; ?>
                             </p>
 
-                            <h6 class="text-success">
-                                ৳ <?php echo $row['price']; ?> / night
-                            </h6>
+                            <?php if (!empty($row['lowest_price'])): ?>
+    <h6 class="text-success">
+         ৳ <?php echo number_format($row['lowest_price'], ); ?> / night
+    </h6>
+<?php else: ?>
+    <h6 class="text-muted">
+        Price not available
+    </h6>
+<?php endif; ?>
+
 
                             <p>
                                 <?php echo substr($row['description'], 0, 70); ?>...

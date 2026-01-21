@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 16, 2026 at 03:31 PM
+-- Generation Time: Jan 16, 2026 at 09:35 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,7 +43,10 @@ CREATE TABLE `admin_commissions` (
 --
 
 INSERT INTO `admin_commissions` (`id`, `payment_id`, `user_id`, `owner_id`, `amount`, `commission`, `owner_get`, `created_at`) VALUES
-(25, 32, 1, 15, 5500.00, 550.00, 4950.00, '2026-01-16 14:22:57');
+(25, 32, 1, 15, 5500.00, 550.00, 4950.00, '2026-01-16 14:22:57'),
+(26, 33, 1, 15, 5500.00, 550.00, 4950.00, '2026-01-16 20:04:10'),
+(27, 34, 11, 14, 4000.00, 400.00, 3600.00, '2026-01-16 20:14:18'),
+(28, 35, 11, 14, 6500.00, 650.00, 5850.00, '2026-01-16 20:25:10');
 
 -- --------------------------------------------------------
 
@@ -82,15 +85,26 @@ CREATE TABLE `bookings` (
   `hotel_id` int(11) DEFAULT NULL,
   `room_title` varchar(200) DEFAULT NULL,
   `room_id` int(11) DEFAULT NULL,
-  `rooms_booked` int(11) DEFAULT 1
+  `rooms_booked` int(11) DEFAULT 1,
+  `payment_status` enum('pending','success','failed') NOT NULL DEFAULT 'pending',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `bookings`
 --
 
-INSERT INTO `bookings` (`id`, `user_id`, `owner_id`, `hotel_name`, `location`, `price`, `rooms_count`, `guests`, `booking_date`, `check_in_date`, `check_out_date`, `status`, `hotel_id`, `room_title`, `room_id`, `rooms_booked`) VALUES
-(103, 1, 0, 'West Park Inn', 'Dhaka', 5500, 1, 2, NULL, '2026-01-16', '2026-01-17', 'confirmed', 21, 'Deluxe Double Room', 9, 1);
+INSERT INTO `bookings` (`id`, `user_id`, `owner_id`, `hotel_name`, `location`, `price`, `rooms_count`, `guests`, `booking_date`, `check_in_date`, `check_out_date`, `status`, `hotel_id`, `room_title`, `room_id`, `rooms_booked`, `payment_status`, `created_at`) VALUES
+(103, 1, 0, 'West Park Inn', 'Dhaka', 5500, 1, 2, NULL, '2026-01-16', '2026-01-17', 'confirmed', 21, 'Deluxe Double Room', 9, 1, 'pending', '2026-01-17 01:57:52'),
+(104, 1, 0, 'Sayeman Beach Resort', 'Cox\'s Bazar', 6500, 1, 1, NULL, '2026-01-23', '2026-01-24', 'confirmed', 20, 'Panorama Ocean Suite Sea View with Balcony', 7, 1, 'pending', '2026-01-17 01:57:52'),
+(105, 1, 0, 'West Park Inn', 'Dhaka', 5500, 1, 1, NULL, '2026-01-29', '2026-01-30', 'initiated', 21, 'Deluxe Double Room', 9, 1, 'pending', '2026-01-17 01:57:57'),
+(106, 1, 0, 'West Park Inn', 'Dhaka', 5500, 1, 1, NULL, '2026-01-29', '2026-01-30', 'initiated', 21, 'Deluxe Double Room', 9, 1, 'pending', '2026-01-17 01:58:03'),
+(107, 1, 0, 'West Park Inn', 'Dhaka', 5500, 1, 1, NULL, '2026-01-29', '2026-01-30', 'initiated', 21, 'Deluxe Double Room', 9, 1, 'pending', '2026-01-17 02:00:13'),
+(108, 1, 0, 'West Park Inn', 'Dhaka', 5500, 1, 1, NULL, '2026-01-17', '2026-01-18', 'cancelled', 21, 'Deluxe Double Room', 9, 1, 'success', '2026-01-17 02:00:27'),
+(109, 1, 0, 'Sayeman Beach Resort', 'Cox\'s Bazar', 4000, 1, 1, NULL, '2026-01-19', '2026-01-20', 'initiated', 20, 'Super Deluxe Family Room (City or Hill View)', 8, 1, 'pending', '2026-01-17 02:04:41'),
+(110, 11, 0, 'Sayeman Beach Resort', 'Cox\'s Bazar', 6500, 1, 1, NULL, '2026-01-30', '2026-01-31', 'confirmed', 20, 'Panorama Ocean Suite Sea View with Balcony', 7, 1, 'success', '2026-01-17 02:08:53'),
+(111, 11, 0, 'Sayeman Beach Resort', 'Cox\'s Bazar', 4000, 1, 1, NULL, '2026-01-19', '2026-01-20', 'cancelled', 20, 'Super Deluxe Family Room (City or Hill View)', 8, 1, 'success', '2026-01-17 02:10:40'),
+(112, 11, 0, 'Sayeman Beach Resort', 'Cox\'s Bazar', 4000, 1, 1, NULL, '2026-01-30', '2026-01-31', 'initiated', 20, 'Super Deluxe Family Room (City or Hill View)', 8, 1, 'pending', '2026-01-17 02:26:05');
 
 -- --------------------------------------------------------
 
@@ -189,7 +203,20 @@ INSERT INTO `notifications` (`id`, `receiver_id`, `receiver_role`, `message`, `l
 (231, 1, 'user', '✅ Booking request sent for \"Deluxe Double Room\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 14:22:47'),
 (232, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116152257956\nAmount: ৳5500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 14:22:57'),
 (233, 15, 'owner', '✅ Payment Received!\nHotel: West Park Inn\nAmount: ৳5500.00 (You get: ৳4950)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 14:22:57'),
-(234, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳5500.00\nCommission: ৳550\nOwner gets: ৳4950', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 14:22:57');
+(234, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳5500.00\nCommission: ৳550\nOwner gets: ৳4950', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 14:22:57'),
+(235, 14, 'owner', '📅 New booking request for \"Panorama Ocean Suite Sea View with Balcony\" from rahat', '/hotel_booking/owner/manage_bookings.php', 'unread', '2026-01-16 18:36:18'),
+(236, 1, 'user', '✅ Booking request sent for \"Panorama Ocean Suite Sea View with Balcony\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 18:36:18'),
+(237, 1, 'user', 'Booking status updated for \'Panorama Ocean Suite Sea View with Balcony\' to: Confirmed', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 19:02:00'),
+(238, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116210410429\nAmount: ৳5500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 20:04:10'),
+(239, 15, 'owner', '✅ Payment Received!\nHotel: West Park Inn\nAmount: ৳5500.00 (You get: ৳4950)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 20:04:10'),
+(240, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳5500.00\nCommission: ৳550\nOwner gets: ৳4950', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 20:04:10'),
+(241, 11, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116211418113\nAmount: ৳4000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 20:14:18'),
+(242, 14, 'owner', '✅ Payment Received!\nHotel: Sayeman Beach Resort\nAmount: ৳4000.00 (You get: ৳3600)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 20:14:18'),
+(243, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳4000.00\nCommission: ৳400\nOwner gets: ৳3600', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 20:14:18'),
+(244, 11, 'user', 'Booking status updated for \'Super Deluxe Family Room (City or Hill View)\' to: Cancelled', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 20:15:33'),
+(245, 11, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116212509131\nAmount: ৳6500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 20:25:10'),
+(246, 14, 'owner', '✅ Payment Received!\nHotel: Sayeman Beach Resort\nAmount: ৳6500.00 (You get: ৳5850)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 20:25:10'),
+(247, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳6500.00\nCommission: ৳650\nOwner gets: ৳5850', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 20:25:10');
 
 -- --------------------------------------------------------
 
@@ -407,7 +434,10 @@ CREATE TABLE `user_payments` (
 --
 
 INSERT INTO `user_payments` (`id`, `user_id`, `owner_id`, `booking_id`, `hotel_name`, `room_title`, `amount`, `tran_id`, `payment_status`, `admin_status`, `created_at`, `owner_paid_status`, `owner_paid_date`, `commission`, `owner_amount`, `receipt_id`, `booking_date`) VALUES
-(32, 1, 15, 103, 'West Park Inn', 'Deluxe Double Room', 5500.00, 'USERPAY_696a49b9a574e', 'success', 'pending', '2026-01-16 14:22:57', 'pending', NULL, 550.00, 4950.00, 'REC20260116152257956', '2026-01-16');
+(32, 1, 15, 103, 'West Park Inn', 'Deluxe Double Room', 5500.00, 'USERPAY_696a49b9a574e', 'success', 'pending', '2026-01-16 14:22:57', 'pending', NULL, 550.00, 4950.00, 'REC20260116152257956', '2026-01-16'),
+(33, 1, 15, 108, 'West Park Inn', 'Deluxe Double Room', 5500.00, 'USERPAY_696a99b0211b3', 'success', 'pending', '2026-01-16 20:04:10', 'pending', NULL, 550.00, 4950.00, 'REC20260116210410429', '2026-01-17'),
+(34, 11, 14, 111, 'Sayeman Beach Resort', 'Super Deluxe Family Room (City or Hill View)', 4000.00, 'USERPAY_696a9c122f3ad', 'success', 'pending', '2026-01-16 20:14:18', 'pending', NULL, 400.00, 3600.00, 'REC20260116211418113', '2026-01-17'),
+(35, 11, 14, 110, 'Sayeman Beach Resort', 'Panorama Ocean Suite Sea View with Balcony', 6500.00, 'USERPAY_696a9e9cc13a4', 'success', 'pending', '2026-01-16 20:25:09', 'pending', NULL, 650.00, 5850.00, 'REC20260116212509131', '2026-01-17');
 
 --
 -- Indexes for dumped tables
@@ -526,7 +556,7 @@ ALTER TABLE `user_payments`
 -- AUTO_INCREMENT for table `admin_commissions`
 --
 ALTER TABLE `admin_commissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `blocked_dates`
@@ -538,7 +568,7 @@ ALTER TABLE `blocked_dates`
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=104;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 
 --
 -- AUTO_INCREMENT for table `chat_messages`
@@ -556,7 +586,7 @@ ALTER TABLE `hotels`
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=235;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=248;
 
 --
 -- AUTO_INCREMENT for table `owner_subscriptions`
@@ -610,7 +640,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `user_payments`
 --
 ALTER TABLE `user_payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=36;
 
 --
 -- Constraints for dumped tables

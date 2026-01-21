@@ -30,6 +30,15 @@ if (mysqli_num_rows($room_result) == 0) {
 }
 
 $room = mysqli_fetch_assoc($room_result);
+// Get room amenities
+$amenities_sql = "
+    SELECT a.name, a.icon
+    FROM amenities a
+    JOIN room_amenities ra ON a.id = ra.amenity_id
+    WHERE ra.room_id = $room_id
+";
+$amenities_result = mysqli_query($conn, $amenities_sql);
+
 
 // Get room images
 $images_sql = "SELECT * FROM room_images WHERE room_id = '$room_id' ORDER BY is_primary DESC";
@@ -161,27 +170,21 @@ while ($img = mysqli_fetch_assoc($images_result)) {
                 <?php endif; ?>
                 
                 <!-- Amenities -->
-                <div>
-                    <h5>Amenities</h5>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success"></i> Free WiFi</li>
-                                <li><i class="fas fa-check text-success"></i> Air Conditioning</li>
-                                <li><i class="fas fa-check text-success"></i> TV with Cable</li>
-                                <li><i class="fas fa-check text-success"></i> Attached Bathroom</li>
-                            </ul>
-                        </div>
-                        <div class="col-md-6">
-                            <ul class="list-unstyled">
-                                <li><i class="fas fa-check text-success"></i> Room Service</li>
-                                <li><i class="fas fa-check text-success"></i> Hot Water</li>
-                                <li><i class="fas fa-check text-success"></i> Housekeeping</li>
-                                <li><i class="fas fa-check text-success"></i> Security</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+                
+                <?php if (mysqli_num_rows($amenities_result) > 0): ?>
+<div class="mb-4">
+    <h5>Amenities</h5>
+    <div class="row">
+        <?php while($am = mysqli_fetch_assoc($amenities_result)): ?>
+            <div class="col-md-6 mb-2">
+                <i class="fas <?php echo $am['icon']; ?> text-success"></i>
+                <?php echo $am['name']; ?>
+            </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+<?php endif; ?>
+
             </div>
             
             <div class="col-md-4">

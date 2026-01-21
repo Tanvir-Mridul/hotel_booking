@@ -81,6 +81,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             
             $room_id = mysqli_insert_id($conn);
+// 1️⃣ Save selected amenities
+if (!empty($_POST['amenities'])) {
+    foreach ($_POST['amenities'] as $amenity_id) {
+        $amenity_id = intval($amenity_id);
+        $insert_am = "
+            INSERT INTO room_amenities (room_id, amenity_id)
+            VALUES ('$room_id', '$amenity_id')
+        ";
+        if (!mysqli_query($conn, $insert_am)) {
+            throw new Exception("Amenity insert failed: " . mysqli_error($conn));
+        }
+    }
+}
+
+
             $uploaded_images = 0;
             $primary_set = false;
             
@@ -225,7 +240,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                   placeholder="Describe room features, view, amenities, bed size, facilities..."><?php echo $_POST['description'] ?? ''; ?></textarea>
                         <small class="text-muted">Help guests understand what makes your room special</small>
                     </div>
-                    
+                    <?php
+$amenities_q = mysqli_query($conn, "SELECT * FROM amenities ORDER BY name ASC");
+?>
+
+<div class="form-group mt-3">
+    <label><strong>Room Amenities</strong></label>
+    <div class="row">
+        <?php while($am = mysqli_fetch_assoc($amenities_q)): ?>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="amenities[]"
+                           value="<?php echo $am['id']; ?>"
+                           id="amenity_<?php echo $am['id']; ?>">
+                    <label class="form-check-label" for="amenity_<?php echo $am['id']; ?>">
+                        <?php echo $am['name']; ?>
+                    </label>
+                </div>
+            </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
