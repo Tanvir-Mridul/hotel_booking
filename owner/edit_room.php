@@ -24,6 +24,15 @@ if (mysqli_num_rows($room_result) == 0) {
 
 $room = mysqli_fetch_assoc($room_result);
 
+// ===== AMENITIES LOAD (EDIT PAGE) =====
+$all_amenities = mysqli_query($conn, "SELECT * FROM amenities ORDER BY name ASC");
+
+$selected_amenities = [];
+$sa_q = mysqli_query($conn, "SELECT amenity_id FROM room_amenities WHERE room_id='$room_id'");
+while ($row = mysqli_fetch_assoc($sa_q)) {
+    $selected_amenities[] = $row['amenity_id'];
+}
+
 // Update room
 // Update room
 if (isset($_POST['update_room'])) {
@@ -73,6 +82,20 @@ if (!empty($_FILES['new_image']['name'])) {
         room_count='$room_count'
         $image_sql
     WHERE id='$room_id'";
+
+// ===== AMENITIES UPDATE =====
+mysqli_query($conn, "DELETE FROM room_amenities WHERE room_id='$room_id'");
+
+if (!empty($_POST['amenities'])) {
+    foreach ($_POST['amenities'] as $amenity_id) {
+        $amenity_id = intval($amenity_id);
+        mysqli_query(
+            $conn,
+            "INSERT INTO room_amenities (room_id, amenity_id)
+             VALUES ('$room_id', '$amenity_id')"
+        );
+    }
+}
 
     if (mysqli_query($conn, $update_sql)) {
         header("Location: manage_rooms.php?msg=updated");
@@ -135,6 +158,28 @@ include "../header.php";
                     </div>
                 </div>
                 
+                <!-- ===== ROOM AMENITIES ===== -->
+<div class="form-group mt-3">
+    <label><strong>Room Amenities</strong></label>
+    <div class="row">
+        <?php while($am = mysqli_fetch_assoc($all_amenities)): ?>
+            <div class="col-md-6">
+                <div class="form-check">
+                    <input class="form-check-input"
+                           type="checkbox"
+                           name="amenities[]"
+                           value="<?php echo $am['id']; ?>"
+                           id="amenity_<?php echo $am['id']; ?>"
+                           <?php echo in_array($am['id'], $selected_amenities) ? 'checked' : ''; ?>>
+                    <label class="form-check-label" for="amenity_<?php echo $am['id']; ?>">
+                        <?php echo $am['name']; ?>
+                    </label>
+                </div>
+            </div>
+        <?php endwhile; ?>
+    </div>
+</div>
+
                 <div class="col-md-6">
                     <div class="form-group">
                         <label>Price Per Night (৳) *</label>

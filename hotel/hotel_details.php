@@ -148,6 +148,17 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
         
         <div class="row">
             <?php while($room = mysqli_fetch_assoc($rooms_result)): ?>
+              <?php
+// ===== GET AMENITIES FOR THIS ROOM =====
+$amenities_q = mysqli_query($conn, "
+    SELECT a.name 
+    FROM room_amenities ra
+    JOIN amenities a ON ra.amenity_id = a.id
+    WHERE ra.room_id = '{$room['id']}'
+");
+?>
+
+
             <div class="col-md-4 mb-4">
                 <div class="room-card">
                     <!-- Room Image with Status Badge -->
@@ -195,12 +206,34 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
                         <?php endif; ?>
                         
                         <!-- Amenities -->
-                        <ul class="amenities-list">
-                            <li><i class="fas fa-wifi"></i> Free WiFi</li>
-                            <li><i class="fas fa-tv"></i> TV</li>
-                            <li><i class="fas fa-snowflake"></i> AC</li>
-                            <li><i class="fas fa-bath"></i> Attached Bath</li>
-                        </ul>
+                       <!-- Amenities -->
+<!-- Amenities -->
+<?php if(mysqli_num_rows($amenities_q) > 0): ?>
+<div class="row mt-2">
+    <?php while($am = mysqli_fetch_assoc($amenities_q)): 
+        $icon = "fa-check"; // default icon
+
+        // ICON MAPPING
+        if (stripos($am['name'], 'wifi') !== false) $icon = "fa-wifi";
+        elseif (stripos($am['name'], 'tv') !== false) $icon = "fa-tv";
+        elseif (stripos($am['name'], 'ac') !== false || stripos($am['name'], 'air') !== false) $icon = "fa-snowflake";
+        elseif (stripos($am['name'], 'bath') !== false) $icon = "fa-bath";
+        elseif (stripos($am['name'], 'parking') !== false) $icon = "fa-car";
+        elseif (stripos($am['name'], 'service') !== false) $icon = "fa-concierge-bell";
+    ?>
+        <div class="col-6">
+            <div style="font-size:14px; margin-bottom:6px;">
+                <i class="fas <?php echo $icon; ?> text-success"></i>
+                <?php echo htmlspecialchars($am['name']); ?>
+            </div>
+        </div>
+    <?php endwhile; ?>
+</div>
+<?php else: ?>
+    <p class="text-muted" style="font-size:13px;">No amenities listed</p>
+<?php endif; ?>
+
+
                         
                         <!-- Action Buttons -->
                         <div class="mt-3">
