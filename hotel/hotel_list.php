@@ -21,27 +21,49 @@ if (!empty($_GET['location'])) {
 /* 💰 MIN PRICE */
 if (!empty($_GET['min_price'])) {
     $min_price = (int)$_GET['min_price'];
-    $where .= " AND r.price_per_night >= $min_price";
+    $where .= " AND (
+        CASE 
+            WHEN r.discount_price IS NOT NULL 
+                 AND r.discount_price > 0 
+            THEN r.discount_price 
+            ELSE r.price_per_night 
+        END
+    ) >= $min_price";
 }
-
 
 /* 💰 MAX PRICE */
 if (!empty($_GET['max_price'])) {
     $max_price = (int)$_GET['max_price'];
-    $where .= " AND r.price_per_night <= $max_price";
+    $where .= " AND (
+        CASE 
+            WHEN r.discount_price IS NOT NULL 
+                 AND r.discount_price > 0 
+            THEN r.discount_price 
+            ELSE r.price_per_night 
+        END
+    ) <= $max_price";
 }
 
 
-$sql = "
-SELECT 
+
+$sql = "SELECT 
     h.*,
-    MIN(r.price_per_night) AS lowest_price
+    MIN(
+        CASE 
+            WHEN r.discount_price IS NOT NULL 
+                 AND r.discount_price > 0 
+                 AND r.discount_price < r.price_per_night
+            THEN r.discount_price
+            ELSE r.price_per_night
+        END
+    ) AS lowest_price
 FROM hotels h
 LEFT JOIN rooms r ON h.id = r.hotel_id
 $where
 GROUP BY h.id
-ORDER BY h.id DESC
+ORDER BY h.id ASC
 ";
+
 
 $result = mysqli_query($conn, $sql);
 ?>

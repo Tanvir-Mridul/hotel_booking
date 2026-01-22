@@ -61,6 +61,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $capacity = intval($_POST['capacity']);
     $room_count_input = intval($_POST['room_count']);
     $price_per_night = floatval($_POST['price_per_night']);
+    $discount_price = !empty($_POST['discount_price']) 
+    ? floatval($_POST['discount_price']) 
+    : NULL;
+
     
     // Validate
     if (empty($room_title) || $price_per_night <= 0) {
@@ -70,11 +74,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         mysqli_begin_transaction($conn);
         
         try {
-            // 1. Insert room - REMOVED 'status' column
-            $room_sql = "INSERT INTO rooms (hotel_id, room_title, description, 
-                          capacity, room_count, price_per_night, active) 
-                         VALUES ('$hotel_id', '$room_title', '$description', 
-                                 '$capacity', '$room_count_input', '$price_per_night', '1')";
+            // 1. Insert room - 
+            $room_sql = "INSERT INTO rooms 
+(hotel_id, room_title, description, capacity, room_count, price_per_night, discount_price, active)
+VALUES (
+'$hotel_id',
+'$room_title',
+'$description',
+'$capacity',
+'$room_count_input',
+'$price_per_night',
+".($discount_price !== NULL ? "'$discount_price'" : "NULL").",
+'1'
+)";
+
             
             if (!mysqli_query($conn, $room_sql)) {
                 throw new Exception("Room insert failed: " . mysqli_error($conn));
@@ -265,7 +278,7 @@ $amenities_q = mysqli_query($conn, "SELECT * FROM amenities ORDER BY name ASC");
 </div>
 
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label class="required-field">Capacity (Persons)</label>
                                 <input type="number" name="capacity" class="form-control" 
@@ -275,7 +288,7 @@ $amenities_q = mysqli_query($conn, "SELECT * FROM amenities ORDER BY name ASC");
                             </div>
                         </div>
                         
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label class="required-field">Number of Rooms</label>
                                 <input type="number" name="room_count" class="form-control" 
@@ -285,7 +298,7 @@ $amenities_q = mysqli_query($conn, "SELECT * FROM amenities ORDER BY name ASC");
                             </div>
                         </div>
                         
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <div class="form-group">
                                 <label class="required-field">Price per Night (৳)</label>
                                 <input type="number" name="price_per_night" class="form-control" 
@@ -293,9 +306,23 @@ $amenities_q = mysqli_query($conn, "SELECT * FROM amenities ORDER BY name ASC");
                                        min="500" step="100" required>
                                 <small class="text-muted">Room price per night</small>
                             </div>
+                            
+                            
                         </div>
+
+                           <div class="col-md-3">
+                            <div class="form-group">
+    <label>Discount Price (৳)</label>
+    <input type="number" name="discount_price" class="form-control"
+           placeholder="Optional (Offer price)">
+</div>
+
+                            
+                        </div>
+                        
                     </div>
                 </div>
+                
                 
                 <div class="col-md-4">
                     <div class="form-group">

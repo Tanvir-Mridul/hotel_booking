@@ -30,7 +30,7 @@ $rooms_sql = "SELECT r.*,
               FROM rooms r 
               WHERE r.hotel_id = '$hotel_id' 
               AND r.active = 1  -- শুধু active room show হবে
-              ORDER BY r.price_per_night ASC";
+              ORDER BY r.discount_price ASC";
 $rooms_result = mysqli_query($conn, $rooms_sql);
 ?>
 
@@ -148,7 +148,7 @@ $rooms_result = mysqli_query($conn, $rooms_sql);
         
         <div class="row">
             <?php while($room = mysqli_fetch_assoc($rooms_result)): ?>
-              <?php
+                <?php
 // ===== GET AMENITIES FOR THIS ROOM =====
 $amenities_q = mysqli_query($conn, "
     SELECT a.name 
@@ -179,9 +179,27 @@ $amenities_q = mysqli_query($conn, "
                         <?php endif; ?>
                         
                         <!-- Price Tag -->
-                        <div style="position: absolute; top: 15px; right: 15px; background: rgba(39, 174, 96, 0.9); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
-                            ৳ <?php echo number_format($room['price_per_night'], 2); ?>/night
-                        </div>
+                        
+
+                        
+
+<?php if(!empty($room['discount_price']) && $room['discount_price'] < $room['price_per_night']): ?>
+     <div style="position: absolute; top: 15px; right: 15px; background: rgba(39, 174, 96, 0.9); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
+        <span style="text-decoration: line-through; ">
+            ৳ <?php echo number_format($room['price_per_night'], ); ?>
+        </span>
+        <span class=" font-weight-bold ml-2">
+            ৳ <?php echo number_format($room['discount_price'], ); ?>/night
+        </span>
+    </div>
+<?php else: ?>
+    <div style="position: absolute; top: 15px; right: 15px; background: rgba(39, 174, 96, 0.9); color: white; padding: 5px 15px; border-radius: 20px; font-weight: bold;">
+        ৳ <?php echo number_format($room['price_per_night'], ); ?>/night
+    </div>
+<?php endif; ?>
+
+
+
                     </div>
                     
                     <!-- Room Details -->

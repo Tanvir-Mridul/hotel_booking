@@ -189,10 +189,37 @@ while ($img = mysqli_fetch_assoc($images_result)) {
             
             <div class="col-md-4">
                 <div class="booking-card">
-                    <div class="price-display text-center mb-3">
-                        ৳ <?php echo $room['price_per_night']; ?>
-                        <div style="font-size: 14px; color: #666;">per night</div>
-                    </div>
+        <!--price tag-->
+       <div class="price-display text-center mb-3">
+
+    <?php if(!empty($room['discount_price']) 
+        && $room['discount_price'] > 0 
+        && $room['discount_price'] < $room['price_per_night']): ?>
+
+        <!-- MAIN PRICE (CUT) -->
+        <div style="font-size:18px; color:#999; text-decoration: line-through;">
+            ৳ <?php echo number_format($room['price_per_night'], 2); ?>
+        </div>
+
+        <!-- DISCOUNT PRICE -->
+        <div style="font-size:32px; font-weight:bold; color:#27ae60;">
+            ৳ <?php echo number_format($room['discount_price'], 2); ?>
+        </div>
+
+    <?php else: ?>
+
+        <!-- ONLY MAIN PRICE -->
+        <div style="font-size:32px; font-weight:bold; color:#27ae60;">
+            ৳ <?php echo number_format($room['price_per_night'], 2); ?>
+        </div>
+
+    <?php endif; ?>
+
+    <div style="font-size:14px; color:#666;">per night</div>
+
+</div>
+
+
                     
                     <div class="text-center mb-4">
                         <div class="badge badge-success p-2" style="font-size: 14px;">

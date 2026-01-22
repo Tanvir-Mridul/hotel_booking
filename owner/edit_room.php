@@ -41,6 +41,10 @@ if (isset($_POST['update_room'])) {
     $description = mysqli_real_escape_string($conn, $_POST['description']);
     $capacity = intval($_POST['capacity']);
     $price_per_night = floatval($_POST['price_per_night']);
+    $discount_price = !empty($_POST['discount_price']) 
+    ? floatval($_POST['discount_price']) 
+    : NULL;
+
     $room_count = intval($_POST['room_count']);
 
     // IMAGE UPDATE PART
@@ -74,14 +78,15 @@ if (!empty($_FILES['new_image']['name'])) {
     }
 }
 
-    $update_sql = "UPDATE rooms SET 
-        room_title='$room_title',
-        description='$description',
-        capacity='$capacity',
-        price_per_night='$price_per_night',
-        room_count='$room_count'
-        $image_sql
-    WHERE id='$room_id'";
+   $update_sql = "UPDATE rooms SET
+    room_title='$room_title',
+    description='$description',
+    capacity='$capacity',
+    room_count='$room_count',
+    price_per_night='$price_per_night',
+    discount_price=".($discount_price !== NULL ? "'$discount_price'" : "NULL")."
+WHERE id='$room_id'";
+
 
 // ===== AMENITIES UPDATE =====
 mysqli_query($conn, "DELETE FROM room_amenities WHERE room_id='$room_id'");
@@ -182,10 +187,17 @@ include "../header.php";
 
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Price Per Night (৳) *</label>
-                        <input type="number" name="price_per_night" class="form-control" 
-                               value="<?php echo $room['price_per_night']; ?>" step="0.01" min="100" required>
-                    </div>
+    <label>Main Price (৳)</label>
+    <input type="number" name="price_per_night" class="form-control"
+           value="<?php echo $room['price_per_night']; ?>" required>
+</div>
+
+<div class="form-group">
+    <label>Discount Price (৳)</label>
+    <input type="number" name="discount_price" class="form-control"
+           value="<?php echo $room['discount_price']; ?>">
+</div>
+
                     
                     <div class="form-group">
                         <label>Number of Rooms *</label>

@@ -29,7 +29,7 @@ $report_sql = "SELECT
     SUM(CASE WHEN status='confirmed' THEN 1 ELSE 0 END) as confirmed,
     SUM(CASE WHEN status='confirmed' THEN price ELSE 0 END) as revenue
     FROM bookings 
-    WHERE hotel_id='$hotel_id' AND DATE_FORMAT(check_in_date, '%Y-%m')='$selected_month'";
+    WHERE hotel_id='$hotel_id' AND DATE_FORMAT(created_at, '%Y-%m')='$selected_month'";
 $stats = mysqli_fetch_assoc(mysqli_query($conn, $report_sql));
 
 // Get payment stats
@@ -45,13 +45,13 @@ $recent_sql = "SELECT b.*, u.name as user_name
                FROM bookings b
                JOIN users u ON b.user_id=u.id
                WHERE b.hotel_id='$hotel_id' 
-               AND DATE_FORMAT(b.check_in_date, '%Y-%m')='$selected_month'
+               AND DATE_FORMAT(b.created_at, '%Y-%m')='$selected_month'
                ORDER BY b.id DESC LIMIT 5";
 $recent_result = mysqli_query($conn, $recent_sql);
 
 // Get available months
 $months_result = mysqli_query($conn, 
-    "SELECT DISTINCT DATE_FORMAT(check_in_date, '%Y-%m') as month 
+    "SELECT DISTINCT DATE_FORMAT(created_at, '%Y-%m') as month 
      FROM bookings WHERE hotel_id='$hotel_id' ORDER BY month DESC");
 ?>
 
@@ -195,6 +195,7 @@ $months_result = mysqli_query($conn,
                                 <th>Customer</th>
                                 <th>Check-in</th>
                                 <th>Amount</th>
+                                <th>Date</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -205,6 +206,10 @@ $months_result = mysqli_query($conn,
                                 <td><?php echo $booking['user_name']; ?></td>
                                 <td><?php echo date('d/m/Y', strtotime($booking['check_in_date'])); ?></td>
                                 <td>৳ <?php echo number_format($booking['price'],2); ?></td>
+                                 <td><?php echo date('d/m/Y', strtotime($booking['created_at'])); ?></td>
+                                 
+
+                                 
                                 <td>
                                     <?php if($booking['status']=='confirmed'): ?>
                                         <span class="badge badge-confirmed">Confirmed</span>
@@ -227,7 +232,7 @@ $months_result = mysqli_query($conn,
 
     <!-- Footer -->
     <div class="text-center text-muted mt-4 no-print">
-        <p>Report generated on <?php echo date('d F Y h:i A'); ?></p>
+        <p>Report generated on <?php echo date('d F Y '); ?></p>
     </div>
 </div>
 

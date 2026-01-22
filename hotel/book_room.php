@@ -153,7 +153,21 @@ if (!$all_dates_available) {
 // Calculate total price
 $nights = (strtotime($check_out) - strtotime($check_in)) / (60 * 60 * 24);
 $nights = max(1, $nights);
-$total_price = $nights * $room['price_per_night'] * $rooms_count;
+// ===== PRICE DECISION (MAIN vs DISCOUNT) =====
+$price_per_night = (
+    !empty($room['discount_price']) &&
+    $room['discount_price'] > 0 &&
+    $room['discount_price'] < $room['price_per_night']
+)
+? $room['discount_price']
+: $room['price_per_night'];
+
+// Calculate total price
+$nights = (strtotime($check_out) - strtotime($check_in)) / (60 * 60 * 24);
+$nights = max(1, $nights);
+
+$total_price = $nights * $price_per_night * $rooms_count;
+
 
 // Insert booking
 $insert = $conn->prepare("INSERT INTO bookings 

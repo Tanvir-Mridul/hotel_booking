@@ -19,6 +19,7 @@ $user_id = $_SESSION['user_id'];
 // Fetch booking details (room-based)
 $sql = "SELECT b.*, 
                r.room_title, r.capacity, r.room_count,
+               r.price_per_night, r.discount_price,
                h.image as hotel_image, h.owner_id
         FROM bookings b
         LEFT JOIN rooms r ON b.room_id = r.id
@@ -26,6 +27,7 @@ $sql = "SELECT b.*,
         WHERE b.id = ? 
         AND b.user_id = ? 
         AND b.status = 'initiated'";
+
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("ii", $booking_id, $user_id);
 $stmt->execute();

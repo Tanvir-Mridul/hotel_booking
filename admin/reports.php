@@ -21,7 +21,7 @@ $report_sql = "SELECT
     SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) as cancelled_bookings,
     SUM(CASE WHEN status = 'confirmed' THEN price ELSE 0 END) as total_revenue
     FROM bookings 
-    WHERE DATE_FORMAT(check_in_date, '%Y-%m') = '$selected_month'";
+    WHERE DATE_FORMAT(created_at, '%Y-%m') = '$selected_month'";
 
 $report_result = mysqli_query($conn, $report_sql);
 $stats = mysqli_fetch_assoc($report_result);
@@ -65,7 +65,7 @@ $recent_bookings_sql = "SELECT b.*, u.name as user_name, h.hotel_name
                        FROM bookings b
                        JOIN users u ON b.user_id = u.id
                        JOIN hotels h ON b.hotel_id = h.id
-                       WHERE DATE_FORMAT(b.check_in_date, '%Y-%m') = '$selected_month'
+                       WHERE DATE_FORMAT(b.created_at, '%Y-%m') = '$selected_month'
                        ORDER BY b.id DESC 
                        LIMIT 10";
 $recent_bookings_result = mysqli_query($conn, $recent_bookings_sql);
