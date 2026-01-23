@@ -1,4 +1,4 @@
-///cancel.php/
+
 <?php
 session_start();
 include "../db_connect.php";
@@ -7,8 +7,7 @@ include "../db_connect.php";
 |--------------------------------------------------------------------------
 | SSLCommerz Cancel URL
 |--------------------------------------------------------------------------
-| Payment cancel হলে SSLCommerz এই file এ hit করবে
-| tran_id session / DB থেকে পাওয়া যাবে
+|
 */
 
 if (!isset($_POST['tran_id'])) {

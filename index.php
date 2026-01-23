@@ -34,10 +34,10 @@ $result = mysqli_query($conn, $sql);
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StayNova - Find Best Hotels in Bangladesh</title>
 
-  <!-- Include Header (with Bootstrap 4 navbar) -->
+
   <?php include "header.php"; ?>
 
-  <!-- Your Custom CSS -->
+
   <link rel="stylesheet" href="style.css">
 </head>
 

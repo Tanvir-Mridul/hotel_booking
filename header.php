@@ -53,17 +53,17 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
             $notifications[] = $row;
         }
     }
-    
+
     // Calculate unread count
     $count_sql = "SELECT COUNT(*) as total FROM notifications 
                   WHERE receiver_id = '$uid' 
                   AND receiver_role = '$role' 
                   AND status = 'unread'";
-    
+
     $count_result = mysqli_query($conn, $count_sql);
     if ($count_result && mysqli_num_rows($count_result) > 0) {
         $count_data = mysqli_fetch_assoc($count_result);
-        $unread_count = (int)$count_data['total'];
+        $unread_count = (int) $count_data['total'];
     }
 }
 ?>
@@ -75,9 +75,9 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
 
 
 
-<!-- Bootstrap 4 CSS -->
+
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<!-- Font Awesome -->
+
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 
@@ -122,7 +122,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
             <!-- Right Menu Items -->
             <ul class="navbar-nav ml-auto">
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    
+
                     <!-- PREMIUM BADGE (ONLY OWNER) - LEFT SIDE -->
                     <?php if ($_SESSION['role'] === 'owner' && $is_premium): ?>
                         <li class="nav-item d-flex align-items-center mr-3">
@@ -135,7 +135,8 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                     <!-- UPGRADE NOW (ONLY OWNER & NOT PREMIUM) - LEFT SIDE -->
                     <?php if ($_SESSION['role'] === 'owner' && !$is_premium): ?>
                         <li class="nav-item mr-3">
-                            <a href="/hotel_booking/owner/subscription.php" class="btn btn-warning btn-sm" style="font-size: 12px;">
+                            <a href="/hotel_booking/owner/subscription.php" class="btn btn-warning btn-sm"
+                                style="font-size: 12px;">
                                 ⭐ Upgrade Now
                             </a>
                         </li>
@@ -146,39 +147,46 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                         <a class="nav-link dropdown-toggle position-relative" href="#" data-toggle="dropdown">
                             <i class="fas fa-bell"></i>
                             <?php if ($unread_count > 0): ?>
-                                <span class="badge badge-danger" 
-                                      style="position: absolute; top: 0; right: 0; transform: translate(50%, -50%); 
+                                <span class="badge badge-danger" style="position: absolute; top: 0; right: 0; transform: translate(50%, -50%); 
                                              font-size: 10px; padding: 2px 5px; min-width: 18px; height: 18px;">
                                     <?php echo $unread_count; ?>
                                 </span>
                             <?php endif; ?>
                         </a>
-                        
+
                         <div class="dropdown-menu dropdown-menu-right" style="width: 350px; padding: 0;">
                             <div class="p-2 border-bottom bg-light">
                                 <h6 class="mb-0"><i class="fas fa-bell mr-2"></i> Notifications</h6>
                             </div>
-                            
+
                             <!-- SCROLLABLE NOTIFICATIONS -->
                             <div style="max-height: 350px; overflow-y: auto;">
                                 <?php if (count($notifications) > 0): ?>
                                     <?php foreach ($notifications as $n): ?>
-                                        <a href="<?php echo $n['link']; ?>" 
-                                           class="dropdown-item d-block py-2 px-3 border-bottom text-decoration-none"
-                                           onclick="markAsRead(<?php echo $n['id']; ?>, this)"
-                                           style="white-space: normal; word-wrap: break-word;">
+                                        <a href="<?php echo $n['link']; ?>"
+                                            class="dropdown-item d-block py-2 px-3 border-bottom text-decoration-none"
+                                            onclick="markAsRead(<?php echo $n['id']; ?>, this)"
+                                            style="white-space: normal; word-wrap: break-word;">
                                             <div class="d-flex">
                                                 <div class="me-2" style="font-size: 18px; color: #666;">
-                                                    <?php 
+                                                    <?php
                                                     $msg = $n['message'];
-                                                    if (strpos($msg, '📅') !== false) echo '📅';
-                                                    elseif (strpos($msg, '✅') !== false) echo '✅';
-                                                    elseif (strpos($msg, '❌') !== false) echo '❌';
-                                                    elseif (strpos($msg, '💳') !== false) echo '💳';
-                                                    elseif (strpos($msg, '🏨') !== false) echo '🏨';
-                                                    elseif (strpos($msg, '⚠️') !== false) echo '⚠️';
-                                                    elseif (strpos($msg, '💬') !== false) echo '💬';
-                                                    else echo '🔔';
+                                                    if (strpos($msg, '📅') !== false)
+                                                        echo '📅';
+                                                    elseif (strpos($msg, '✅') !== false)
+                                                        echo '✅';
+                                                    elseif (strpos($msg, '❌') !== false)
+                                                        echo '❌';
+                                                    elseif (strpos($msg, '💳') !== false)
+                                                        echo '💳';
+                                                    elseif (strpos($msg, '🏨') !== false)
+                                                        echo '🏨';
+                                                    elseif (strpos($msg, '⚠️') !== false)
+                                                        echo '⚠️';
+                                                    elseif (strpos($msg, '💬') !== false)
+                                                        echo '💬';
+                                                    else
+                                                        echo '🔔';
                                                     ?>
                                                 </div>
                                                 <div style="flex: 1;">
@@ -199,7 +207,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                     </div>
                                 <?php endif; ?>
                             </div>
-                            
+
                             <div class="p-2 border-top bg-light text-center">
                                 <small class="text-muted">Latest notifications</small>
                             </div>
@@ -272,10 +280,10 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                     <i class="fas fa-crown mr-2"></i> Subscription
                                 </a>
                                 <a class="dropdown-item" href="/hotel_booking/owner/finance.php">
-                                     💰 Finance
+                                    💰 Finance
                                 </a>
 
-                                
+
                                 <a class="dropdown-item" href="/hotel_booking/owner/messages.php">
                                     <i class="fas fa-comments mr-2"></i> Messages
                                     <?php
@@ -296,12 +304,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                                 <a class="dropdown-item" href="admin/dashboard.php">
                                     <i class="fas fa-cog mr-2"></i> Admin Panel
                                 </a>
-                                <a class="dropdown-item" href="admin/hotels.php">
-                                    <i class="fas fa-hotel mr-2"></i> Manage Hotels
-                                </a>
-                                <a class="dropdown-item" href="admin/manage_subscriptions.php">
-                                    <i class="fas fa-crown mr-2"></i> Manage Subscriptions
-                                </a>
+
                             <?php endif; ?>
 
                             <div class="dropdown-divider"></div>
@@ -352,7 +355,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
             }
         });
     });
-    
+
     // Mark notification as read
     function markAsRead(notiId, element) {
         // AJAX call to mark as read
@@ -360,9 +363,9 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
         xhr.open("POST", "/hotel_booking/mark_notification_read.php", true);
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         xhr.send("notification_id=" + notiId);
-        
+
         // Update count badge
-        xhr.onload = function() {
+        xhr.onload = function () {
             if (xhr.status === 200) {
                 var badge = document.querySelector('.fa-bell + .badge');
                 if (badge) {
@@ -373,7 +376,7 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
                         badge.remove();
                     }
                 }
-                
+
                 // Remove unread styling
                 if (element) {
                     element.style.backgroundColor = '#fff';
@@ -388,14 +391,17 @@ if (isset($_SESSION['user_id'], $_SESSION['role'])) {
     .dropdown-menu div[style*="overflow-y"]::-webkit-scrollbar {
         width: 6px;
     }
+
     .dropdown-menu div[style*="overflow-y"]::-webkit-scrollbar-track {
         background: #f8f9fa;
         border-radius: 3px;
     }
+
     .dropdown-menu div[style*="overflow-y"]::-webkit-scrollbar-thumb {
         background: #ccc;
         border-radius: 3px;
     }
+
     .dropdown-menu div[style*="overflow-y"]::-webkit-scrollbar-thumb:hover {
         background: #aaa;
     }

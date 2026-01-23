@@ -114,7 +114,7 @@ if (isset($_GET['delete_room'])) {
     }
 }
 
-// Get all rooms with their primary image - FIXED QUERY
+// Get all rooms with their primary image - 
 $rooms_sql = "SELECT r.*, 
               (SELECT image_url FROM room_images WHERE room_id = r.id LIMIT 1) as primary_image
               FROM rooms r 
@@ -330,19 +330,19 @@ include "../header.php";
                                             && $room['discount_price'] < $room['price_per_night']
                                         ): ?>
 
-                                            <!-- 🔴 MAIN PRICE (CUT) -->
+                                            <!--  MAIN PRICE (CUT) -->
                                             <div style="font-size:14px; color:#999; text-decoration:line-through;">
                                                 ৳ <?php echo number_format($room['price_per_night'], 2); ?>
                                             </div>
 
-                                            <!-- 🟢 DISCOUNT PRICE -->
+                                            <!--  DISCOUNT PRICE -->
                                             <div style="font-size:20px; font-weight:bold; color:#28a745;">
                                                 ৳ <?php echo number_format($room['discount_price'], 2); ?> / night
                                             </div>
 
                                         <?php else: ?>
 
-                                            <!-- 🟢 ONLY MAIN PRICE -->
+                                            <!--  ONLY MAIN PRICE -->
                                             <div style="font-size:20px; font-weight:bold; color:#28a745;">
                                                 ৳ <?php echo number_format($room['price_per_night'], 2); ?> / night
                                             </div>

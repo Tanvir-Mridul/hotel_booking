@@ -1,22 +1,22 @@
 
 <?php
 session_start();
-// ... your code
+
 ?>
 
   <!DOCTYPE html>
 <html>
 <head>
-    <!-- Bootstrap 4 CSS -->
+    
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Font Awesome -->
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Your Custom CSS -->
+    
     <link rel="stylesheet" href="style.css">
-    <!-- Include Header for Navbar -->
+    
     <?php include "header.php"; ?>
     
-    <title>Your Page Title</title>
+    <title>Login Page</title>
 </head>
 <body>
 </head>

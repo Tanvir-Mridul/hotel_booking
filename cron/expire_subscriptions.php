@@ -2,7 +2,7 @@
 include "../db_connect.php";
 include "../includes/notification_helper.php";
 
-// 1️⃣ Find expired subscriptions
+//  Find expired subscriptions
 $expired_subs = mysqli_query($conn, "SELECT id, owner_id 
     FROM owner_subscriptions 
     WHERE status='approved' 
@@ -13,18 +13,18 @@ while ($sub = mysqli_fetch_assoc($expired_subs)) {
     $sub_id = $sub['id'];
     $owner_id = $sub['owner_id'];
 
-    // 2️⃣ Mark subscription as expired
+    //  Mark subscription as expired
     mysqli_query($conn, "UPDATE owner_subscriptions 
         SET status='expired' 
         WHERE id='$sub_id'");
 
-    // 3️⃣ Disable owner's hotels
+    //  Disable owner's hotels
     mysqli_query($conn, "UPDATE hotels 
         SET status='off' 
         WHERE owner_id='$owner_id' 
         AND status='approved'");
 
-    // 4️⃣ Send notification
+    //  Send notification
     sendNotification($owner_id, 'owner',
         "⚠️ Your subscription has expired. Hotels are now disabled. Please renew.",
         "/hotel_booking/owner/subscription.php"

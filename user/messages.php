@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'user') {
 
 $user_id = $_SESSION['user_id'];
 
-// যেসব owner-দের সাথে চ্যাট হয়েছে
+//  owner-der sathe chat
 $sql = "SELECT DISTINCT u.id, u.name 
         FROM users u
         JOIN chat_messages cm ON 

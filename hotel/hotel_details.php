@@ -3,7 +3,7 @@ session_start();
 include "../db_connect.php";
 include "../header.php";
 
-// 1️⃣ id check
+//  id check
 if (!isset($_GET['id'])) {
     echo "<div class='container mt-5'><div class='alert alert-danger'>Hotel not found!</div></div>";
     include "../footer.php";
@@ -12,7 +12,7 @@ if (!isset($_GET['id'])) {
 
 $hotel_id = $_GET['id'];
 
-// 2️⃣ DB থেকে hotel data আনা
+//  DB theke hotel data ana
 $sql = "SELECT * FROM hotels WHERE id='$hotel_id' AND status='approved'";
 $result = mysqli_query($conn, $sql);
 
@@ -24,12 +24,12 @@ if (mysqli_num_rows($result) == 0) {
 
 $hotel = mysqli_fetch_assoc($result);
 
-// 3️⃣ Hotel এর ACTIVE rooms আনা - শুধু active room show হবে
+//  Hotel  ACTIVE rooms - Only active room show 
 $rooms_sql = "SELECT r.*, 
               (SELECT image_url FROM room_images WHERE room_id = r.id LIMIT 1) as primary_image
               FROM rooms r 
               WHERE r.hotel_id = '$hotel_id' 
-              AND r.active = 1  -- শুধু active room show হবে
+              AND r.active = 1  --  active room show 
               ORDER BY r.discount_price ASC";
 $rooms_result = mysqli_query($conn, $rooms_sql);
 ?>
@@ -223,8 +223,7 @@ $amenities_q = mysqli_query($conn, "
                         </p>
                         <?php endif; ?>
                         
-                        <!-- Amenities -->
-                       <!-- Amenities -->
+                       
 <!-- Amenities -->
 <?php if(mysqli_num_rows($amenities_q) > 0): ?>
 <div class="row mt-2">
@@ -252,7 +251,7 @@ $amenities_q = mysqli_query($conn, "
 <?php endif; ?>
 
 
-                        
+                       
                         <!-- Action Buttons -->
                         <div class="mt-3">
                             <a href="room_details.php?room_id=<?php echo $room['id']; ?>&hotel_id=<?php echo $hotel_id; ?>" 

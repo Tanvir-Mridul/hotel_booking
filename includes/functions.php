@@ -1,5 +1,5 @@
 <?php
-// includes/functions.php - শুধুমাত্র notification icon function থাকবে
+// includes/functions.php -  notification icon function 
 function getNotificationIcon($message) {
     if (strpos($message, '📅') !== false) return '📅';
     if (strpos($message, '✅') !== false) return '✅';

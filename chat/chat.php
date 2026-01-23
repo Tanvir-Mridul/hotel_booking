@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 $my_id = $_SESSION['user_id'];
 $my_role = $_SESSION['role'];
 
-// চ্যাট পার্টনার আইডি
+// chat patner id
 if ($my_role == 'user') {
     $receiver_id = $_GET['owner_id'] ?? 0;
     $receiver_role = 'owner';
@@ -22,7 +22,7 @@ if (!$receiver_id) {
     die("Invalid chat");
 }
 
-// রিসিভারের নাম
+// receiver name
 $receiver_q = mysqli_query($conn, "SELECT name FROM users WHERE id='$receiver_id'");
 $receiver = mysqli_fetch_assoc($receiver_q);
 $receiver_name = $receiver['name'] ?? 'Unknown';

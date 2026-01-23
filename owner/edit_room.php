@@ -24,7 +24,7 @@ if (mysqli_num_rows($room_result) == 0) {
 
 $room = mysqli_fetch_assoc($room_result);
 
-// ===== AMENITIES LOAD (EDIT PAGE) =====
+// ===== AMENITIES LOAD 
 $all_amenities = mysqli_query($conn, "SELECT * FROM amenities ORDER BY name ASC");
 
 $selected_amenities = [];
@@ -33,7 +33,7 @@ while ($row = mysqli_fetch_assoc($sa_q)) {
     $selected_amenities[] = $row['amenity_id'];
 }
 
-// Update room
+
 // Update room
 if (isset($_POST['update_room'])) {
 
@@ -49,7 +49,7 @@ if (isset($_POST['update_room'])) {
 
     // IMAGE UPDATE PART
     $image_sql = "";
-   // ===== IMAGE UPDATE (room_images table) =====
+   // ===== IMAGE UPDATE (room_images table) 
 if (!empty($_FILES['new_image']['name'])) {
 
     $allowed = ['jpg', 'jpeg', 'png'];
@@ -66,10 +66,10 @@ if (!empty($_FILES['new_image']['name'])) {
 
         if (move_uploaded_file($_FILES['new_image']['tmp_name'], $upload_path)) {
 
-            // পুরোনো primary image remove
+            // purono primary image remove
             mysqli_query($conn, "DELETE FROM room_images WHERE room_id='$room_id'");
 
-            // নতুন image insert as primary
+            // new image insert as primary
             mysqli_query($conn, "
                 INSERT INTO room_images (room_id, image_url, is_primary)
                 VALUES ('$room_id', '$new_image_name', 1)

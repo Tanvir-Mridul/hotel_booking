@@ -1,7 +1,7 @@
 <?php
 session_start();
 include "../db_connect.php";
-include "../header.php";
+
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'owner') {
     header("Location: ../login.php");
@@ -119,6 +119,7 @@ $booked_result = mysqli_query($conn, $booked_sql);
             margin-right: 5px;
         }
     </style>
+    <?php include "../header.php"; ?>
 </head>
 <body>
 

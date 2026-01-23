@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
 }
 
 
-// Determine current page for active state
+
 $current_page = basename($_SERVER['PHP_SELF']);
 
 
@@ -33,7 +33,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             Manage Subscription</a>
         <a href="manage_packages.php" class="<?= $current_page == 'manage_packages.php' ? 'active' : '' ?>">📦 Subscription
             Packages</a>
-            <a href="reports.php" class="<?= $current_page == 'manage_packages.php' ? 'active' : '' ?>">📦 Reports
+            <a href="reports.php" class="<?= $current_page == 'reports.php' ? 'active' : '' ?>">📦 Reports
             Packages</a>
             
 

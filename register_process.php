@@ -4,8 +4,34 @@ include "db_connect.php";
 // Get and sanitize data
 $name  = mysqli_real_escape_string($conn, $_POST['name']);
 $email = mysqli_real_escape_string($conn, $_POST['email']);
-$pass  = password_hash($_POST['password'], PASSWORD_DEFAULT);
+$password = $_POST['password'];
+
+// Password validation
+if (strlen($password) < 6) {
+    echo "<script>
+        alert('Password must be at least 6 characters long!');
+        window.history.back();
+    </script>";
+    exit();
+}
+
+$pass = password_hash($password, PASSWORD_DEFAULT);
+
 $role  = $_POST['role'];
+
+/*
+if (
+    strlen($password) < 6 ||
+    !preg_match('/[A-Z]/', $password) ||
+    !preg_match('/[0-9]/', $password)
+) {
+    echo "<script>
+        alert('Password must be at least 6 characters, include 1 capital letter and 1 number!');
+        window.history.back();
+    </script>";
+    exit();
+}
+*/
 
 // Email check
 $check_sql = "SELECT id FROM users WHERE email='$email'";
@@ -39,7 +65,7 @@ try {
             throw new Exception("Hotel name and location are required for owners");
         }
         
-        // Fix: Use addslashes for locations like "Cox's Bazar"
+        
         $hotel_location = addslashes($hotel_location);
         
         $hotel_sql = "INSERT INTO hotels (owner_id, hotel_name, location, status, created_at) 

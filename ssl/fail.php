@@ -1,4 +1,3 @@
-//fail.php//
 <?php
 session_start();
 ?>

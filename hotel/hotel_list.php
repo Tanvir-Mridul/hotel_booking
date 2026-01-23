@@ -11,14 +11,14 @@ $max_price = "";
 $where = "WHERE h.status = 'approved' AND r.active = 1";
 
 
-/* 🔍 LOCATION SEARCH */
+/*  LOCATION SEARCH */
 if (!empty($_GET['location'])) {
     $location = mysqli_real_escape_string($conn, $_GET['location']);
     $where .= " AND (h.location LIKE '%$location%' 
                 OR h.hotel_name LIKE '%$location%')";
 }
 
-/* 💰 MIN PRICE */
+/*  MIN PRICE */
 if (!empty($_GET['min_price'])) {
     $min_price = (int)$_GET['min_price'];
     $where .= " AND (
@@ -31,7 +31,7 @@ if (!empty($_GET['min_price'])) {
     ) >= $min_price";
 }
 
-/* 💰 MAX PRICE */
+/* MAX PRICE */
 if (!empty($_GET['max_price'])) {
     $max_price = (int)$_GET['max_price'];
     $where .= " AND (
@@ -73,7 +73,7 @@ $result = mysqli_query($conn, $sql);
 <div class="container mt-5">
     <h2 class="text-center mb-4">Search Hotels</h2>
 
-    <!-- 🔍 Search Box -->
+    <!--  Search Box -->
     <form method="GET" class="row g-3 mb-4">
 
         <div class="col-md-4">
@@ -98,7 +98,7 @@ $result = mysqli_query($conn, $sql);
         </div>
     </form>
 
-    <!-- 🏨 Hotel Cards -->
+    <!--  Hotel Cards -->
     <div class="row">
 
     
@@ -136,7 +136,7 @@ $result = mysqli_query($conn, $sql);
                             </p>
                         </div>
 
-                       <!-- Hotel Card এর ভিতরে -->
+                       <!-- Hotel Card er bitor -->
 <div class="card-footer bg-white border-0">
     <a href="hotel_details.php?id=<?php echo $row['id']; ?>"
        class="btn btn-outline-primary w-100">

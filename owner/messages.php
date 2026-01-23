@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'owner') {
 
 $owner_id = $_SESSION['user_id'];
 
-// যেসব user-দের সাথে চ্যাট হয়েছে
+//  user-der sathe chat
 $sql = "SELECT DISTINCT u.id, u.name 
         FROM users u
         JOIN chat_messages cm ON 
@@ -28,7 +28,7 @@ $result = mysqli_query($conn, $sql);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <?php include "../header.php"; ?>
     <style>
-        /* Same CSS as above, just change header color if needed */
+        
         * {
             margin: 0;
             padding: 0;
@@ -51,7 +51,7 @@ $result = mysqli_query($conn, $sql);
         }
         
         .messages-header {
-            background: #27ae60; /* Green for owner */
+            background: #27ae60; 
             color: white;
             padding: 20px;
             text-align: center;
@@ -99,7 +99,7 @@ $result = mysqli_query($conn, $sql);
         .chat-avatar {
             width: 50px;
             height: 50px;
-            background: #27ae60; /* Green for owner */
+            background: #27ae60; 
             color: white;
             border-radius: 50%;
             display: flex;

@@ -34,7 +34,7 @@
                 <input type="password" name="confirm_password" class="form-control" placeholder="Confirm Password" required>
             </div>
 
-            <!-- Hotel Information (Owner এর জন্য) -->
+            <!-- Hotel Information  -->
             <div id="ownerFields" style="display:none;">
                 <div class="form-group">
                     <label>Hotel Name *</label>

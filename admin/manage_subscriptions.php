@@ -41,7 +41,7 @@ if (isset($_GET['action'], $_GET['id'])) {
             WHERE id='$id'
         ");
 
-        // 🔔 Notify Owner
+        //  Notify Owner
         sendNotification($owner_id, 'owner',
             "✅ Your subscription (৳$package_price) has been approved! Premium features activated.",
             "/hotel_booking/owner/dashboard.php"
@@ -66,7 +66,7 @@ if (isset($_GET['action'], $_GET['id'])) {
             WHERE owner_id='$owner_id'
         ");
         
-        // 🔔 Notify Owner
+        //  Notify Owner
         sendNotification($owner_id, 'owner',
             "⚠️ Your subscription (৳$package_price) has been deactivated. Your hotels are now offline.",
             "/hotel_booking/owner/subscription.php"
@@ -91,7 +91,7 @@ if (isset($_GET['action'], $_GET['id'])) {
             AND status='off'
         ");
         
-        // 🔔 Notify Owner
+        //  Notify Owner
         sendNotification($owner_id, 'owner',
             "✅ Your subscription (৳$package_price) has been reactivated. Hotels are now online.",
             "/hotel_booking/owner/dashboard.php"
@@ -327,7 +327,7 @@ $result = mysqli_query($conn, $sql);
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="badge bg-dark">
+                                    <span class="badge bg-dark text-white">
                                         <?= $total_result['total_count'] ?> Subscriptions
                                     </span>
                                 </td>

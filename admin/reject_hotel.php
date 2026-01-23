@@ -18,7 +18,7 @@ $hotel = mysqli_fetch_assoc($hotel_q);
 $sql = "UPDATE hotels SET status='rejected' WHERE id='$id'";
 mysqli_query($conn, $sql);
 
-// 🔔 Notify Owner
+//  Notify Owner
 sendNotification($hotel['owner_id'], 'owner',
     "❌ Your hotel \"{$hotel['hotel_name']}\" has been rejected by admin.",
     "/hotel_booking/owner/dashboard.php"

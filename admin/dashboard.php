@@ -16,7 +16,7 @@ $total_hotels = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total
 $pending_hotels = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as pending FROM hotels WHERE status='pending'"))['pending'];
 $total_users = mysqli_fetch_assoc(mysqli_query($conn, "SELECT COUNT(*) as total FROM users"))['total'];
 
-// Subscription stats - FIXED
+// Subscription stats 
 $subscription_stats = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT 
         COUNT(*) as total_subscriptions,
@@ -27,7 +27,7 @@ $subscription_stats = mysqli_fetch_assoc(mysqli_query($conn, "
     WHERE os.status != 'rejected'
 "));
 
-// Booking payment stats - FIXED
+// Booking payment stats 
 $booking_payment_stats = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT 
         COUNT(*) as total_bookings,
@@ -37,7 +37,7 @@ $booking_payment_stats = mysqli_fetch_assoc(mysqli_query($conn, "
     WHERE status IN ('confirmed', 'pending')
 "));
 
-// Commission stats - FIXED (using user_payments table)
+// Commission stats - 
 $commission_stats = mysqli_fetch_assoc(mysqli_query($conn, "
     SELECT 
         SUM(commission) as total_commission,
@@ -180,7 +180,7 @@ $net_profit = $total_commission + $total_subscription_revenue;
             background: #f8d7da;
             color: #721c24;
         }
-        
+
         /* Summary Box */
         .summary-box {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -189,24 +189,24 @@ $net_profit = $total_commission + $total_subscription_revenue;
             border-radius: 10px;
             margin-bottom: 25px;
         }
-        
+
         .summary-title {
             font-size: 16px;
             opacity: 0.9;
             margin-bottom: 5px;
         }
-        
+
         .summary-value {
             font-size: 32px;
             font-weight: bold;
             margin-bottom: 10px;
         }
-        
+
         .summary-detail {
             font-size: 12px;
             opacity: 0.8;
         }
-        
+
         .money-icon {
             font-size: 24px;
             margin-bottom: 10px;
@@ -222,7 +222,7 @@ $net_profit = $total_commission + $total_subscription_revenue;
     <!-- Main Content -->
     <div class="main">
         <h3>Admin Dashboard</h3>
-        
+
         <!-- Financial Summary -->
         <div class="summary-box">
             <div class="row align-items-center">
@@ -263,21 +263,21 @@ $net_profit = $total_commission + $total_subscription_revenue;
                 <div class="stat-number"><?php echo $total_users; ?></div>
                 <div class="stat-label">Total Users</div>
             </div>
-            
+
             <!-- Subscription Stats -->
             <div class="stat-card subscription">
                 <div class="stat-number">৳ <?php echo number_format($total_subscription_revenue, 2); ?></div>
                 <div class="stat-label">Subscription Revenue</div>
                 <small><?php echo $subscription_stats['active_subscriptions'] ?? 0; ?> active</small>
             </div>
-            
+
             <!-- Booking Payment Stats -->
             <div class="stat-card booking-revenue">
                 <div class="stat-number">৳ <?php echo number_format($total_booking_revenue, 2); ?></div>
                 <div class="stat-label">Booking Revenue</div>
                 <small><?php echo $booking_payment_stats['confirmed_bookings'] ?? 0; ?> confirmed</small>
             </div>
-            
+
             <!-- Commission Stats -->
             <div class="stat-card commission">
                 <div class="stat-number">৳ <?php echo number_format($total_commission, 2); ?></div>
@@ -302,18 +302,18 @@ $net_profit = $total_commission + $total_subscription_revenue;
                 <div style="font-size: 30px;">📅</div>
                 <div>Manage Subscription</div>
             </a>
-            
+
             <a href="reports.php" class="action-btn">
                 <div style="font-size: 30px;">📊</div>
                 <div>View Reports</div>
             </a>
-            
+
             <a href="manage_payments.php" class="action-btn">
                 <div style="font-size: 30px;">💰</div>
                 <div>Manage Payments</div>
             </a>
         </div>
-        
+
         <!-- Financial Breakdown -->
         <div class="table-box">
             <h5>Financial Breakdown</h5>
@@ -334,11 +334,13 @@ $net_profit = $total_commission + $total_subscription_revenue;
                     <tr>
                         <td>Total Booking Revenue</td>
                         <td class="text-success">৳ <?php echo number_format($total_booking_revenue, 2); ?></td>
-                        <td>From <?php echo $booking_payment_stats['confirmed_bookings'] ?? 0; ?> confirmed bookings</td>
+                        <td>From <?php echo $booking_payment_stats['confirmed_bookings'] ?? 0; ?> confirmed bookings
+                        </td>
                     </tr>
                     <tr class="table-primary">
                         <td><strong>Total Gross Revenue</strong></td>
-                        <td class="text-primary"><strong>৳ <?php echo number_format($total_received, 2); ?></strong></td>
+                        <td class="text-primary"><strong>৳ <?php echo number_format($total_received, 2); ?></strong>
+                        </td>
                         <td><strong>Total received from users</strong></td>
                     </tr>
                     <tr>

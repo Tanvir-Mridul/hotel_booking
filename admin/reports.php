@@ -1,5 +1,5 @@
 <?php
-// admin/reports.php - SIMPLE VERSION WITH PRINT
+
 session_start();
 include "../db_connect.php";
 
@@ -8,12 +8,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] != 'admin') {
     exit();
 }
 
-// Default filter: current month
+// Default filter
 $current_month = date('Y-m');
 $selected_month = isset($_GET['month']) ? $_GET['month'] : $current_month;
 $month_name = date('F Y', strtotime($selected_month . '-01'));
 
-// SIMPLE: Get booking statistics (using check_in_date)
+// Get booking statistics (using check_in_date)
 $report_sql = "SELECT 
     COUNT(*) as total_bookings,
     SUM(CASE WHEN status = 'confirmed' THEN 1 ELSE 0 END) as confirmed_bookings,
@@ -26,7 +26,7 @@ $report_sql = "SELECT
 $report_result = mysqli_query($conn, $report_sql);
 $stats = mysqli_fetch_assoc($report_result);
 
-// SIMPLE: Get commission data
+//  Get commission data
 $commission_sql = "SELECT 
     SUM(commission) as total_commission,
     SUM(owner_amount) as total_owner_amount,
@@ -38,7 +38,7 @@ $commission_sql = "SELECT
 $commission_result = mysqli_query($conn, $commission_sql);
 $commission = mysqli_fetch_assoc($commission_result);
 
-// SIMPLE: Get subscription data - FIXED: removed created_at
+//  Get subscription data - 
 $subscription_sql = "SELECT 
     COUNT(*) as total_subscriptions,
     SUM(s.price) as subscription_revenue
@@ -49,7 +49,7 @@ $subscription_sql = "SELECT
 $subscription_result = mysqli_query($conn, $subscription_sql);
 $subscription_stats = mysqli_fetch_assoc($subscription_result);
 
-// SIMPLE: Get total subscription revenue (all time)
+//  Get total subscription revenue (all time)
 $total_subscription_sql = "SELECT 
     SUM(s.price) as total_subscription_revenue,
     COUNT(*) as all_time_subscriptions
@@ -60,7 +60,7 @@ $total_subscription_sql = "SELECT
 $total_subscription_result = mysqli_query($conn, $total_subscription_sql);
 $total_subscription = mysqli_fetch_assoc($total_subscription_result);
 
-// SIMPLE: Get recent bookings
+// Get recent bookings
 $recent_bookings_sql = "SELECT b.*, u.name as user_name, h.hotel_name 
                        FROM bookings b
                        JOIN users u ON b.user_id = u.id
@@ -70,7 +70,7 @@ $recent_bookings_sql = "SELECT b.*, u.name as user_name, h.hotel_name
                        LIMIT 10";
 $recent_bookings_result = mysqli_query($conn, $recent_bookings_sql);
 
-// SIMPLE: Get all months with booking data for dropdown
+// Get all months with booking data for dropdown
 $months_sql = "SELECT DISTINCT DATE_FORMAT(check_in_date, '%Y-%m') as month 
               FROM bookings 
               WHERE check_in_date IS NOT NULL
@@ -319,6 +319,7 @@ $months_result = mysqli_query($conn, $months_sql);
                         <th>Customer</th>
                         <th>Hotel</th>
                         <th>Amount</th>
+                        <th>Date</th>
                         <th>Status</th>
                         <th>Check-in</th>
                     </tr>
@@ -331,6 +332,7 @@ $months_result = mysqli_query($conn, $months_sql);
                             <td><?php echo $booking['user_name']; ?></td>
                             <td><?php echo $booking['hotel_name']; ?></td>
                             <td class="text-right">৳ <?php echo number_format($booking['price'], 2); ?></td>
+                            <td><?php echo date('d/m/Y', strtotime($booking['created_at'])); ?></td>
                             <td>
                                 <?php if($booking['status'] == 'pending'): ?>
                                     <span class="badge badge-pending">Pending</span>
@@ -410,13 +412,13 @@ $months_result = mysqli_query($conn, $months_sql);
 <script>
 // Print optimization
 function optimizeForPrint() {
-    // Add print-specific classes
+    
     $('body').addClass('printing');
     
     // Show print header
     $('.print-header').show();
     
-    // Hide unnecessary elements
+    
     $('.no-print').hide();
     
     // Wait a bit then print
@@ -434,12 +436,12 @@ function optimizeForPrint() {
 
 // Enhanced print function
 window.onbeforeprint = function() {
-    // Optional: Add any pre-print modifications
+   
     console.log('Printing report for <?php echo $month_name; ?>');
 };
 
 window.onafterprint = function() {
-    // Optional: Add any post-print cleanup
+   
     console.log('Print completed');
 };
 </script>

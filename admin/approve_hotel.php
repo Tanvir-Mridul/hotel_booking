@@ -18,8 +18,10 @@ $hotel = mysqli_fetch_assoc($hotel_q);
 $sql = "UPDATE hotels SET status='approved' WHERE id='$id'";
 mysqli_query($conn, $sql);
 
-// 🔔 Notify Owner
-sendNotification($hotel['owner_id'], 'owner',
+//  Notify Owner
+sendNotification(
+    $hotel['owner_id'],
+    'owner',
     "✅ Your hotel \"{$hotel['hotel_name']}\" has been approved and is now live!",
     "/hotel_booking/owner/dashboard.php"
 );
