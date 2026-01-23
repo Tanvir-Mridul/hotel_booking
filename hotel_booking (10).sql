@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 22, 2026 at 06:31 PM
+-- Generation Time: Jan 23, 2026 at 05:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -43,10 +43,7 @@ CREATE TABLE `admin_commissions` (
 --
 
 INSERT INTO `admin_commissions` (`id`, `payment_id`, `user_id`, `owner_id`, `amount`, `commission`, `owner_get`, `created_at`) VALUES
-(34, 41, 1, 16, 2000.00, 200.00, 1800.00, '2026-01-21 22:15:50'),
-(35, 42, 1, 16, 15000.00, 1500.00, 13500.00, '2026-01-21 22:16:50'),
-(36, 43, 11, 16, 3500.00, 350.00, 3150.00, '2026-01-22 15:48:49'),
-(37, 44, 11, 16, 7000.00, 700.00, 6300.00, '2026-01-22 16:03:33');
+(40, 47, 1, 16, 7000.00, 700.00, 6300.00, '2026-01-23 16:25:59');
 
 -- --------------------------------------------------------
 
@@ -89,6 +86,15 @@ CREATE TABLE `blocked_dates` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `blocked_dates`
+--
+
+INSERT INTO `blocked_dates` (`id`, `hotel_id`, `room_id`, `blocked_date`, `reason`, `created_at`) VALUES
+(12, 22, 10, '2026-01-31', 'Owner blocked', '2026-01-23 14:28:33'),
+(13, 22, 12, '2026-02-05', 'Owner blocked', '2026-01-23 14:30:16'),
+(14, 22, 11, '2026-02-07', 'Owner blocked', '2026-01-23 14:32:07');
+
 -- --------------------------------------------------------
 
 --
@@ -121,10 +127,7 @@ CREATE TABLE `bookings` (
 --
 
 INSERT INTO `bookings` (`id`, `user_id`, `owner_id`, `hotel_name`, `location`, `price`, `rooms_count`, `guests`, `booking_date`, `check_in_date`, `check_out_date`, `status`, `hotel_id`, `room_title`, `room_id`, `rooms_booked`, `payment_status`, `created_at`) VALUES
-(124, 1, 0, 'Sampan Beach Resort', 'Cox\'s Bazar', 2000, 1, 1, NULL, '2026-01-22', '2026-01-24', 'confirmed', 22, 'Family Suite Room', 12, 1, 'success', '2026-01-22 04:15:39'),
-(125, 1, 0, 'Sampan Beach Resort', 'Cox\'s Bazar', 15000, 1, 1, NULL, '2026-02-11', '2026-02-13', 'confirmed', 22, 'Couple Deluxe Room ', 10, 1, 'success', '2026-01-22 04:16:39'),
-(126, 11, 0, 'Sampan Beach Resort', 'Cox\'s Bazar', 3500, 1, 1, NULL, '2026-01-23', '2026-01-24', 'confirmed', 22, 'Couple Deluxe Room ', 10, 1, 'success', '2026-01-22 21:48:38'),
-(127, 11, 0, 'Sampan Beach Resort', 'Cox\'s Bazar', 7000, 1, 1, NULL, '2026-01-22', '2026-01-23', 'confirmed', 22, 'Luxury Family Deluxe Room', 11, 1, 'success', '2026-01-22 22:03:24');
+(133, 1, 0, 'Sampan Beach Resort', 'Cox\'s Bazar', 7000, 1, 1, NULL, '2026-02-01', '2026-02-03', 'confirmed', 22, 'Couple Deluxe Room ', 10, 1, 'success', '2026-01-23 22:25:44');
 
 -- --------------------------------------------------------
 
@@ -142,6 +145,13 @@ CREATE TABLE `chat_messages` (
   `is_read` tinyint(4) DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `chat_messages`
+--
+
+INSERT INTO `chat_messages` (`id`, `sender_id`, `sender_role`, `receiver_id`, `receiver_role`, `message`, `is_read`, `created_at`) VALUES
+(15, 1, 'user', 16, 'owner', 'hi', 0, '2026-01-23 16:26:32');
 
 -- --------------------------------------------------------
 
@@ -174,7 +184,9 @@ CREATE TABLE `hotels` (
 INSERT INTO `hotels` (`id`, `hotel_name`, `title`, `location`, `price`, `description`, `image`, `status`, `created_at`, `owner_id`, `rooms`, `capacity`, `booked_dates`, `capacity_per_room`, `total_rooms`) VALUES
 (20, 'Sayeman Beach Resort', NULL, 'Cox\'s Bazar', NULL, 'After fifty years of glorious past, Sayeman Beach Resort revives its famed legacy of comfort, elegance and impeccable service. An eminent landmark constructed in 1964, this legendary first private hotel of Cox’s Bazar is reborn, infusing modern sophistication into this vintage-chic, iconic hotel at a new beachfront location of Marine Drive, Kolatoli, Cox’s Bazar.With its richly historic past, the Hotel Sayeman now fully becomes a part of the exciting and rapidly changing present with the addition of a modern, elegant luxury ocean front hotel. The beauty of Cox’s Bazar – the climate, the panoramic ocean views, the sandy beaches, plus the rich culture and history along with the warmth of the sun – is what attracts people here. And the Sayeman Beach Resort provides you exactly just that with extraordinary comfort, luxury and services.', '1768567688_hotel_14.png', 'approved', '2026-01-15 16:21:16', 14, 1, 2, '[\"2026-01-20\"]', 2, 1),
 (21, 'West Park Inn', NULL, 'Dhaka', NULL, 'The West Park Inn, a new 4 star standard hotel in Dhaka situated at the central business hub and diplomatic zone of Banani. Very near to the International Airport. West Park Inn is committed to deliver utmost hospitality services and facilities to meet the needs of corporate and business travelers', '1768571295_hotel_15.png', 'approved', '2026-01-16 13:46:59', 15, 1, 2, '[]', 2, 1),
-(22, 'Sampan Beach Resort', NULL, 'Cox\'s Bazar', NULL, 'Sampan Beach Resort is located in one of the most attractive locations in Cox\'s Bazar. It\'s situated just right beside the Marine Drive road near Himchari just from Cox\'s Bazar Kolatoli Bus Stand.\r\n\r\nThe resort is specially designed for guests who want to avoid the city gatherings and enjoy the natural harmony (hill and Seaview together) in the longest natural sea beach in the world.', '1769024367_hotel_16.jpg', 'approved', '2026-01-16 21:21:19', 16, 1, 2, '[]', 2, 1);
+(22, 'Sampan Beach Resort', NULL, 'Cox\'s Bazar', NULL, 'Sampan Beach Resort is located in one of the most attractive locations in Cox\'s Bazar. It\'s situated just right beside the Marine Drive road near Himchari just from Cox\'s Bazar Kolatoli Bus Stand.\r\n\r\nThe resort is specially designed for guests who want to avoid the city gatherings and enjoy the natural harmony (hill and Seaview together) in the longest natural sea beach in the world.', '1769024367_hotel_16.jpg', 'approved', '2026-01-16 21:21:19', 16, 1, 2, '[]', 2, 1),
+(23, 'White Park Boutique Hotel', NULL, 'Chittagong', NULL, 'White Park Boutique Hotel is a privately owned Standard Luxury Hotel in Chittagong, Bangladesh. It is situated in an attractive location on M.M Ali Road, Dampara Chittagong. It’s very near to the main point of Chittagong city. Chittagong\'s White Park Boutique Hotel provides lodging', '1769173361_hotel_17.jpeg', 'approved', '2026-01-23 12:58:47', 17, 1, 2, '[]', 2, 1),
+(24, 'Hotel Crown Park', NULL, 'Sylhet', NULL, 'Experience refined elegance at Crown Park Sylhet, situated in the vibrant Kumarpara neighborhood. The hotel is perfect for those seeking a blend of relaxation and adventure, featuring room accommodations with modern amenities and stunning views', '1769186155_hotel_21.jpg', 'approved', '2026-01-23 16:35:12', 21, 1, 2, '[]', 2, 1);
 
 -- --------------------------------------------------------
 
@@ -220,59 +232,14 @@ CREATE TABLE `notifications` (
 --
 
 INSERT INTO `notifications` (`id`, `receiver_id`, `receiver_role`, `message`, `link`, `status`, `created_at`) VALUES
-(230, 15, 'owner', '📅 New booking request for \"Deluxe Double Room\" from rahat', '/hotel_booking/owner/manage_bookings.php', 'unread', '2026-01-16 14:22:47'),
-(231, 1, 'user', '✅ Booking request sent for \"Deluxe Double Room\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 14:22:47'),
-(232, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116152257956\nAmount: ৳5500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 14:22:57'),
-(233, 15, 'owner', '✅ Payment Received!\nHotel: West Park Inn\nAmount: ৳5500.00 (You get: ৳4950)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 14:22:57'),
-(234, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳5500.00\nCommission: ৳550\nOwner gets: ৳4950', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 14:22:57'),
-(235, 14, 'owner', '📅 New booking request for \"Panorama Ocean Suite Sea View with Balcony\" from rahat', '/hotel_booking/owner/manage_bookings.php', 'unread', '2026-01-16 18:36:18'),
-(236, 1, 'user', '✅ Booking request sent for \"Panorama Ocean Suite Sea View with Balcony\". Please complete payment.', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 18:36:18'),
-(237, 1, 'user', 'Booking status updated for \'Panorama Ocean Suite Sea View with Balcony\' to: Confirmed', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 19:02:00'),
-(238, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116210410429\nAmount: ৳5500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 20:04:10'),
-(239, 15, 'owner', '✅ Payment Received!\nHotel: West Park Inn\nAmount: ৳5500.00 (You get: ৳4950)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 20:04:10'),
-(240, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳5500.00\nCommission: ৳550\nOwner gets: ৳4950', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 20:04:10'),
-(241, 11, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116211418113\nAmount: ৳4000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 20:14:18'),
-(242, 14, 'owner', '✅ Payment Received!\nHotel: Sayeman Beach Resort\nAmount: ৳4000.00 (You get: ৳3600)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 20:14:18'),
-(243, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳4000.00\nCommission: ৳400\nOwner gets: ৳3600', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 20:14:18'),
-(244, 11, 'user', 'Booking status updated for \'Super Deluxe Family Room (City or Hill View)\' to: Cancelled', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 20:15:33'),
-(245, 11, 'user', '✅ Payment Successful!\nReceipt ID: REC20260116212509131\nAmount: ৳6500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-16 20:25:10'),
-(246, 14, 'owner', '✅ Payment Received!\nHotel: Sayeman Beach Resort\nAmount: ৳6500.00 (You get: ৳5850)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-16 20:25:10'),
-(247, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳6500.00\nCommission: ৳650\nOwner gets: ৳5850', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-16 20:25:10'),
-(248, 16, 'owner', '✅ Your hotel \"Hotel Sampan\" has been approved and is now live!', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-21 18:23:23'),
-(249, 5, 'admin', '🏨 New room uploaded by Robiul - \"Couple Deluxe Room \" (৳7500/night)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-21 18:47:19'),
-(250, 5, 'admin', '💳 New subscription request from Robiul - 1 Month (৳1000.00)', '/hotel_booking/admin/manage_subscriptions.php', 'unread', '2026-01-21 19:05:55'),
-(251, 16, 'owner', '✅ Subscription payment successful! Waiting for admin approval.', '/hotel_booking/owner/subscription.php', 'unread', '2026-01-21 19:05:55'),
-(252, 16, 'owner', '✅ Your subscription (৳1000) has been approved! Premium features activated.', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-21 19:06:11'),
-(253, 5, 'admin', '🏨 New room uploaded by Robiul - \"Luxury Family Deluxe Room\" (৳8000/night)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-21 19:42:29'),
-(254, 5, 'admin', '🏨 New room uploaded by Robiul - \"Family Suite Room\" (৳8500/night)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-21 20:01:19'),
-(255, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260121221536547\nAmount: ৳8500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-21 21:15:36'),
-(256, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳8500.00 (You get: ৳7650)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-21 21:15:37'),
-(257, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳8500.00\nCommission: ৳850\nOwner gets: ৳7650', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-21 21:15:37'),
-(258, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260121225837579\nAmount: ৳1000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-21 21:58:37'),
-(259, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳1000.00 (You get: ৳900)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-21 21:58:37'),
-(260, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳1000.00\nCommission: ৳100\nOwner gets: ৳900', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-21 21:58:37'),
-(261, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260121230929469\nAmount: ৳16000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-21 22:09:29'),
-(262, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳16000.00 (You get: ৳14400)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-21 22:09:29'),
-(263, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳16000.00\nCommission: ৳1600\nOwner gets: ৳14400', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-21 22:09:30'),
-(264, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260121231056318\nAmount: ৳7500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-21 22:10:56'),
-(265, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳7500.00 (You get: ৳6750)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-21 22:10:56'),
-(266, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳7500.00\nCommission: ৳750\nOwner gets: ৳6750', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-21 22:10:56'),
-(267, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260121231207659\nAmount: ৳15000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-21 22:12:07'),
-(268, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳15000.00 (You get: ৳13500)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-21 22:12:07'),
-(269, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳15000.00\nCommission: ৳1500\nOwner gets: ৳13500', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-21 22:12:07'),
-(270, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260121231550515\nAmount: ৳2000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-21 22:15:50'),
-(271, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳2000.00 (You get: ৳1800)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-21 22:15:51'),
-(272, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳2000.00\nCommission: ৳200\nOwner gets: ৳1800', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-21 22:15:51'),
-(273, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260121231650592\nAmount: ৳15000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-21 22:16:50'),
-(274, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳15000.00 (You get: ৳13500)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-21 22:16:50'),
-(275, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳15000.00\nCommission: ৳1500\nOwner gets: ৳13500', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-21 22:16:50'),
-(276, 5, 'admin', '🏨 New room uploaded by Robiul - \"Comfortable Executive Sharing Room\" (৳8000/night)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-22 12:48:12'),
-(277, 11, 'user', '✅ Payment Successful!\nReceipt ID: REC20260122164849411\nAmount: ৳3500.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-22 15:48:49'),
-(278, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳3500.00 (You get: ৳3150)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-22 15:48:49'),
-(279, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳3500.00\nCommission: ৳350\nOwner gets: ৳3150', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-22 15:48:49'),
-(280, 11, 'user', '✅ Payment Successful!\nReceipt ID: REC20260122170332138\nAmount: ৳7000.00', '/hotel_booking/user/my_booking.php', 'unread', '2026-01-22 16:03:33'),
-(281, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳7000.00 (You get: ৳6300)', '/hotel_booking/owner/finance.php', 'unread', '2026-01-22 16:03:33'),
-(282, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳7000.00\nCommission: ৳700\nOwner gets: ৳6300', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-22 16:03:33');
+(297, 1, 'user', '✅ Payment Successful!\nReceipt ID: REC20260123172559326\nAmount: ৳7000.00', '/hotel_booking/user/my_booking.php', 'read', '2026-01-23 16:25:59'),
+(298, 16, 'owner', '✅ Payment Received!\nHotel: Sampan Beach Resort\nAmount: ৳7000.00 (You get: ৳6300)', '/hotel_booking/owner/finance.php', 'read', '2026-01-23 16:25:59'),
+(299, 5, 'admin', '💰 Payment + Commission!\nAmount: ৳7000.00\nCommission: ৳700\nOwner gets: ৳6300', '/hotel_booking/admin/manage_payments.php', 'unread', '2026-01-23 16:25:59'),
+(300, 21, 'owner', '✅ Your hotel \"Hotel Crown Park\" has been approved and is now live!', '/hotel_booking/owner/dashboard.php', 'read', '2026-01-23 16:36:03'),
+(301, 5, 'admin', '🏨 New room uploaded by Asif - \"Super Deluxe Couple\" (৳5500/night)', '/hotel_booking/admin/hotels.php', 'unread', '2026-01-23 16:37:59'),
+(302, 5, 'admin', '💳 New subscription request from Asif - 1 Year (৳8000.00)', '/hotel_booking/admin/manage_subscriptions.php', 'unread', '2026-01-23 16:38:23'),
+(303, 21, 'owner', '✅ Subscription payment successful! Waiting for admin approval.', '/hotel_booking/owner/subscription.php', 'read', '2026-01-23 16:38:23'),
+(304, 21, 'owner', '✅ Your subscription (৳8000) has been approved! Premium features activated.', '/hotel_booking/owner/dashboard.php', 'unread', '2026-01-23 16:38:44');
 
 -- --------------------------------------------------------
 
@@ -292,7 +259,7 @@ CREATE TABLE `owner_finance` (
 --
 
 INSERT INTO `owner_finance` (`owner_id`, `total_earned`, `total_paid`, `last_updated`) VALUES
-(16, 0.00, 9450.00, '2026-01-22 16:32:58');
+(16, 0.00, 6300.00, '2026-01-23 16:28:37');
 
 -- --------------------------------------------------------
 
@@ -319,7 +286,9 @@ CREATE TABLE `owner_subscriptions` (
 
 INSERT INTO `owner_subscriptions` (`id`, `owner_id`, `hotel_id`, `package_id`, `tran_id`, `amount`, `start_date`, `end_date`, `status`, `payment_status`) VALUES
 (25, 14, NULL, 1, 'SUB_6969421073ee7', 1000.00, '2026-01-16 00:00:00', '2026-02-15', 'approved', 'pending'),
-(26, 16, NULL, 1, 'SUB_6971238621693', 1000.00, '2026-01-22 00:00:00', '2026-02-21', 'approved', 'pending');
+(26, 16, NULL, 1, 'SUB_6971238621693', 1000.00, '2026-01-22 00:00:00', '2026-02-21', 'approved', 'pending'),
+(27, 17, NULL, 2, 'SUB_697372e3357ce', 2500.00, '2026-01-23 00:00:00', '2026-04-23', 'approved', 'pending'),
+(28, 21, NULL, 3, 'SUB_6973a3f53bcc0', 8000.00, '2026-01-23 00:00:00', '2027-01-23', 'approved', 'pending');
 
 -- --------------------------------------------------------
 
@@ -383,7 +352,10 @@ INSERT INTO `rooms` (`id`, `hotel_id`, `room_title`, `description`, `capacity`, 
 (10, 22, 'Couple Deluxe Room ', 'This room size is 15 by 12 ft long with a comfortable 7 by 5 ft couple bed. The total has a spacious living space with 180 sq. feet and has a wooden floor, a wooden ceiling, and a large balcony that maximizes your experience.', 2, 1, 7500.00, 3500.00, '2026-01-21 18:47:19', 1, 1, '1769024862_room_10.jpg'),
 (11, 22, 'Luxury Family Deluxe Room', 'The size of the Family Deluxe Room is 625 square feet. This room has King-sized spacious beds measuring 7 feet by 6 feet. Everything from the floor to the ceiling is made of wood, and there is even a unique sofa and a private balcony.\r\n\r\n', 4, 2, 8000.00, 7000.00, '2026-01-21 19:42:29', 1, 1, '1769024896_room_11.jpg'),
 (12, 22, 'Family Suite Room', 'Each room size of the Family Suite is 20 ft by 20 ft and it has a total 3 rooms of 1200 square feet. There are five spacious beds (6 ft X 7 ft) and one single bed another one room two double beds (4 ft x 7 ft) in this room. The living space boasts a wooden floor, a wooden ceiling, and a sizable balcony. Your accommodation has a view of the ocean and the sunset.', 6, 3, 8500.00, 7500.00, '2026-01-21 20:01:19', 1, 1, NULL),
-(13, 22, 'Comfortable Executive Sharing Room', 'These 3 rooms each are 400 square feet in sized comfortable beds measuring 5 by 7 feet. The living area features a spacious balcony, wooden floor, and ceiling. If you stay in one of our ocean-view rooms, you may watch the sun go down while gazing at the beauty.', 8, 1, 8000.00, 5000.00, '2026-01-22 12:48:12', 1, 1, NULL);
+(13, 22, 'Comfortable Executive Sharing Room', 'These 3 rooms each are 400 square feet in sized comfortable beds measuring 5 by 7 feet. The living area features a spacious balcony, wooden floor, and ceiling. If you stay in one of our ocean-view rooms, you may watch the sun go down while gazing at the beauty.', 8, 1, 8000.00, 5000.00, '2026-01-22 12:48:12', 1, 1, NULL),
+(16, 23, 'Premium Suite Double', 'Premium Suite Double Room', 3, 1, 6000.00, 4200.00, '2026-01-23 13:13:07', 1, 1, NULL),
+(17, 23, 'Premium Suite Twin', 'Amazing Premium Suite Twin', 2, 1, 5000.00, 3200.00, '2026-01-23 13:14:15', 1, 1, NULL),
+(18, 24, 'Super Deluxe Couple', ' 2 Adults, 1 Child\r\n Breakfast Included\r\nComplimentary breakfast', 3, 1, 5500.00, 3100.00, '2026-01-23 16:37:59', 1, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -440,7 +412,46 @@ INSERT INTO `room_amenities` (`room_id`, `amenity_id`) VALUES
 (13, 5),
 (13, 6),
 (13, 7),
-(13, 8);
+(13, 8),
+(14, 1),
+(14, 2),
+(14, 3),
+(14, 4),
+(14, 5),
+(14, 6),
+(14, 7),
+(14, 8),
+(15, 1),
+(15, 2),
+(15, 3),
+(15, 4),
+(15, 5),
+(15, 6),
+(15, 7),
+(15, 8),
+(16, 1),
+(16, 2),
+(16, 3),
+(16, 4),
+(16, 5),
+(16, 6),
+(16, 7),
+(16, 8),
+(17, 1),
+(17, 2),
+(17, 3),
+(17, 4),
+(17, 5),
+(17, 6),
+(17, 7),
+(17, 8),
+(18, 1),
+(18, 2),
+(18, 3),
+(18, 4),
+(18, 5),
+(18, 7),
+(18, 8);
 
 -- --------------------------------------------------------
 
@@ -483,7 +494,13 @@ INSERT INTO `room_images` (`id`, `room_id`, `image_url`, `is_primary`, `created_
 (13, 10, '1769025163_room_10.jpg', 1, '2026-01-21 19:52:43'),
 (15, 11, '1769025184_room_11.jpg', 1, '2026-01-21 19:53:04'),
 (16, 12, '1769025679_room_12_0.jpg', 1, '2026-01-21 20:01:19'),
-(17, 13, '1769086092_room_13_0.jpg', 1, '2026-01-22 12:48:12');
+(17, 13, '1769086092_room_13_0.jpg', 1, '2026-01-22 12:48:12'),
+(25, 16, '1769173987_room_16_0.jpeg', 1, '2026-01-23 13:13:07'),
+(26, 16, '1769173987_room_16_1.jpeg', 0, '2026-01-23 13:13:07'),
+(27, 17, '1769174055_room_17_0.jpeg', 1, '2026-01-23 13:14:15'),
+(28, 17, '1769174055_room_17_1.jpeg', 0, '2026-01-23 13:14:15'),
+(29, 18, '1769186279_room_18_0.JPG', 1, '2026-01-23 16:37:59'),
+(30, 18, '1769186279_room_18_1.JPG', 0, '2026-01-23 16:37:59');
 
 -- --------------------------------------------------------
 
@@ -534,7 +551,12 @@ INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password`, `role`, `create
 (11, 'User', 'user@gmail.com', NULL, '$2y$10$GYBDForb8fgm1qMfFKZyBeQM.WgUd5Lqvh7kzDS8NEtydac7POnTa', 'user', '2026-01-13 21:12:24'),
 (14, 'Adil', 'Adil@gmail.com', NULL, '$2y$10$AdB2O/iGkf1m4uB04jg4aeowKqC1dp7VROAUxlrd2OV.G9obZ1lx.', 'owner', '2026-01-15 16:21:16'),
 (15, 'Tanvir', 'tanvir@gmail.com', NULL, '$2y$10$Ych/1xJlymU2meXvmdE09OsSpshw/azaINhrLijD6KFIqifMA5oHG', 'owner', '2026-01-16 13:46:59'),
-(16, 'Robiul', 'Robiul@gmail.com', NULL, '$2y$10$IDm9.WDBwQWAw2AMK.uRN.6UbBvLOgvwLW8UFusk3leOpddaXSjv.', 'owner', '2026-01-16 21:21:19');
+(16, 'Robiul', 'Robiul@gmail.com', NULL, '$2y$10$IDm9.WDBwQWAw2AMK.uRN.6UbBvLOgvwLW8UFusk3leOpddaXSjv.', 'owner', '2026-01-16 21:21:19'),
+(17, 'Shohag', 'shohag@gmail.com', NULL, '$2y$10$r9XnPXHNu2yYQ0jeufoczeOORZ1Cgl54WzWTvEIOHMDIeUX/hePu2', 'owner', '2026-01-23 12:58:47'),
+(18, 'user', 'user1@gmail.com', NULL, '$2y$10$8YsSYhYrPVz6qdrTTaf46Oy8TQUWsCElzIJchx/JDOoJ86ZZMFGXW', 'user', '2026-01-23 15:37:10'),
+(19, 'User3', 'user3@gmail.com', NULL, '$2y$10$QSJtysjZs0HvrTnpUOm2vedVbCMSCM5fnnlX0jqlquph2FhQsmHka', 'user', '2026-01-23 15:41:28'),
+(20, 'mridul', 'mridul@gmail.com', NULL, '$2y$10$fe0H0Qj7qpvc8EPbyg7S8eNgfsd2Rmk.ixspU38UUC8LZYH25YsV6', 'user', '2026-01-23 15:52:50'),
+(21, 'Asif', 'asif@gmail.com', NULL, '$2y$10$cMXTfz4IbWQETTLZgYx7ueGbAoESrQkX/JDLbD0B1f9u8/n0JFZ8K', 'owner', '2026-01-23 16:35:12');
 
 -- --------------------------------------------------------
 
@@ -567,10 +589,7 @@ CREATE TABLE `user_payments` (
 --
 
 INSERT INTO `user_payments` (`id`, `user_id`, `owner_id`, `booking_id`, `hotel_name`, `room_title`, `amount`, `tran_id`, `payment_status`, `admin_status`, `created_at`, `owner_paid_status`, `owner_paid_date`, `commission`, `owner_amount`, `receipt_id`, `booking_date`) VALUES
-(41, 1, 16, 124, 'Sampan Beach Resort', 'Family Suite Room', 2000.00, 'USERPAY_6971500fb1395', 'success', 'pending', '2026-01-21 22:15:50', 'pending', NULL, 200.00, 1800.00, 'REC20260121231550515', '2026-01-22'),
-(42, 1, 16, 125, 'Sampan Beach Resort', 'Couple Deluxe Room ', 15000.00, 'USERPAY_69715049d8281', 'success', 'pending', '2026-01-21 22:16:50', 'pending', NULL, 1500.00, 13500.00, 'REC20260121231650592', '2026-01-22'),
-(43, 11, 16, 126, 'Sampan Beach Resort', 'Couple Deluxe Room ', 3500.00, 'USERPAY_697246d859279', 'success', 'pending', '2026-01-22 15:48:49', 'paid', '2026-01-22 16:32:58', 350.00, 3150.00, 'REC20260122164849411', '2026-01-22'),
-(44, 11, 16, 127, 'Sampan Beach Resort', 'Luxury Family Deluxe Room', 7000.00, 'USERPAY_69724a4de7a39', 'success', 'pending', '2026-01-22 16:03:32', 'paid', '2026-01-22 16:03:49', 700.00, 6300.00, 'REC20260122170332138', '2026-01-22');
+(47, 1, 16, 133, 'Sampan Beach Resort', 'Couple Deluxe Room ', 7000.00, 'USERPAY_6973a10e3e8cc', 'success', 'pending', '2026-01-23 16:25:59', 'paid', '2026-01-23 16:28:37', 700.00, 6300.00, 'REC20260123172559326', '2026-01-23');
 
 --
 -- Indexes for dumped tables
@@ -701,7 +720,7 @@ ALTER TABLE `user_payments`
 -- AUTO_INCREMENT for table `admin_commissions`
 --
 ALTER TABLE `admin_commissions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=38;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `amenities`
@@ -713,37 +732,37 @@ ALTER TABLE `amenities`
 -- AUTO_INCREMENT for table `blocked_dates`
 --
 ALTER TABLE `blocked_dates`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `bookings`
 --
 ALTER TABLE `bookings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=128;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=134;
 
 --
 -- AUTO_INCREMENT for table `chat_messages`
 --
 ALTER TABLE `chat_messages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `hotels`
 --
 ALTER TABLE `hotels`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=283;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=305;
 
 --
 -- AUTO_INCREMENT for table `owner_subscriptions`
 --
 ALTER TABLE `owner_subscriptions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `owner_withdrawals`
@@ -761,7 +780,7 @@ ALTER TABLE `payments`
 -- AUTO_INCREMENT for table `rooms`
 --
 ALTER TABLE `rooms`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `room_dates`
@@ -773,7 +792,7 @@ ALTER TABLE `room_dates`
 -- AUTO_INCREMENT for table `room_images`
 --
 ALTER TABLE `room_images`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `subscriptions`
@@ -785,13 +804,13 @@ ALTER TABLE `subscriptions`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `user_payments`
 --
 ALTER TABLE `user_payments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=45;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=48;
 
 --
 -- Constraints for dumped tables
