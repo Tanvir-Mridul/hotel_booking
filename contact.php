@@ -220,8 +220,8 @@ include "header.php";
                         <div>
                             <h5>Our Office</h5>
                             <p>
-                                Level 5, Bashundhara City Shopping Complex<br>
-                                Panthapath, Dhaka 1215<br>
+                                Uttara,Sector 10<br>
+                                Dhaka 1230<br>
                                 Bangladesh
                             </p>
                         </div>

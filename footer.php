@@ -3,7 +3,7 @@
 
     <!-- About -->
     <div class="footer-box">
-      <h4>Staynova</h4>
+      <h4><i class="fa-solid fa-plane"></i> Staynova</h4>
       <p>
         A trusted online hotel booking platform providing
         verified hotels and secure booking experience.
@@ -41,7 +41,7 @@
   </div>
 
   <div class="footer-bottom">
-    © <?php echo date("Y"); ?> Hotel Booking System. All Rights Reserved.
+    © <?php echo date("Y"); ?> StayNova. All Rights Reserved.
   </div>
 </footer>
 

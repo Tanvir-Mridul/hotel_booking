@@ -32,7 +32,7 @@ $result = mysqli_query($conn, $sql);
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hotel Booking - Find Best Hotels in Bangladesh</title>
+  <title>StayNova - Find Best Hotels in Bangladesh</title>
 
   <!-- Include Header (with Bootstrap 4 navbar) -->
   <?php include "header.php"; ?>
@@ -142,13 +142,13 @@ $result = mysqli_query($conn, $sql);
                 <p class="text-muted mb-1">
                   <i class="fas fa-map-marker-alt"></i> <?php echo $row['location']; ?>
                 </p>
-                <?php if(!empty($row['lowest_price'])): ?>
-    <strong class="text-success">
-        ৳ <?php echo number_format($row['lowest_price']); ?> / night
-    </strong>
-<?php else: ?>
-    <span class="text-muted">Price not available</span>
-<?php endif; ?>
+                <?php if (!empty($row['lowest_price'])): ?>
+                  <strong class="text-success">
+                    ৳ <?php echo number_format($row['lowest_price']); ?> / night
+                  </strong>
+                <?php else: ?>
+                  <span class="text-muted">Price not available</span>
+                <?php endif; ?>
 
               </div>
 
